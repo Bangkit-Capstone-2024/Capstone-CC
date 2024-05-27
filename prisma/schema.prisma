@@ -21,34 +21,4 @@ model Users {
   updated_at        DateTime @default(now())
   created_at        DateTime @default(now())
 
-  //    FORENG KEY
-  biodata           Biodata[]
-  avatar            Avatar[]
-}
-
-model Biodata {
-  id                Int      @id @default(autoincrement())
-  user_id           Int
-  firts_name        String
-  last_name         String
-  address           String
-  updated_at        DateTime @default(now())
-  created_at        DateTime @default(now())
-
-
-  //    RELATION
-  users              Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-}
-
-model Avatar {
-  id                Int      @id @default(autoincrement())
-  user_id           Int
-  filename          String
-  location          String
-  updated_at        DateTime @default(now())
-  created_at        DateTime @default(now())
-
-  //    RELATION
-  users              Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
