@@ -1,0 +1,63 @@
+import express from "express";
+// import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import path from "path";
+import env from "dotenv";
+import cors from "cors";
+env.config();
+
+const app = express();
+const PORT = process.env.PORT;
+
+import { rateLimit } from "express-rate-limit";
+import users_controllers from "./routes/UsersRoutes";
+// RATE LIMIT, THE PROCESS OF LIMITING THE NUMBER OF USER/CLIENT REQUSET ON CERTAIN RESOURCES
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too much pressing the screen, please wait a moment",
+});
+
+// MIDDLEWARE
+app.use((req, res, next) => {
+  // WEBSITE YOU WISH TO ALLOW TO CONNECT
+  req.headers["Access-control-allow-origin"] = "*";
+
+  // REQUEST METHOD YOU WISH TO ALLOW
+  req.headers["Access-control-allow-methods"] = "GET, POST, OPTIONS, PUT, PATCH, DELETE";
+
+  // REQUEST HEADERS YOU WISH TO ALLOW
+
+  req.headers["Access-control-allow-headers"] = "Authorization, Content-Type";
+  // PASS TO NEXT LAYER OF MIDDLEWARE
+  next();
+});
+
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
+app.use(limiter);
+app.use(express.json({ limit: "100mb" }));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, "../static")));
+
+// ROUTES
+
+app.use("/api/v1", users_controllers);
+
+// LISTENER
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
