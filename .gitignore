@@ -4,4 +4,4 @@ node_modules
 schema.prisma
 prisma/migrations
 package-lock.json
-db.md
+db.txt

@@ -1,5 +1,4 @@
 import express from "express";
-// import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import path from "path";
 import env from "dotenv";

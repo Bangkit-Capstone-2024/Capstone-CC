@@ -91,6 +91,8 @@ export const UsersCreate = async (req, res) => {
             `,
     });
 
+    console.log(`Verification email sent to ${createUsers.email}`);
+
     res.status(201).json({
       success: "true",
       message: "User created successfully. Please check your email to verify your account.",
@@ -100,6 +102,8 @@ export const UsersCreate = async (req, res) => {
         username: createUsers.username,
       },
     });
+    //Kirim email verifikasi LOG
+    console.log(`User ${createUsers.username} created successfully. Email verification sent to ${createUsers.email}`);
   } catch (error) {
     res.status(500).json({
       success: "false",
@@ -164,6 +168,8 @@ export const UsersVerifyEmail = async (req, res) => {
       <p>Your account has been successfully verified. Please Login</p>`,
     });
 
+    console.log(`Verification email send to ${user.email}`);
+
     res.status(200).send(`
         <html>
           <head>
@@ -175,6 +181,96 @@ export const UsersVerifyEmail = async (req, res) => {
           </body>
         </html>
       `);
+    console.log(`User ${user.username} verified successfully.`);
+  } catch (error) {
+    res.status(500).json({
+      success: "false",
+      error: error.message,
+    });
+  }
+};
+
+// USERS RESEND EMAIL VERIFICATION
+
+export const UsersResendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: "false",
+        message: "Email is required",
+      });
+    }
+
+    const user = await UsersModels.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: "false",
+        message: "User not found",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: "false",
+        message: "Email is already verified",
+      });
+    }
+
+    // CREATE TOKEN
+    const token = jwt.sign(
+      {
+        app_name: process.env.APP_ID,
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      },
+      process.env.API_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    const hashToken = CryptoJS.AES.encrypt(token, process.env.API_SECRET).toString();
+
+    // Send verification email
+    const verificationLink = `${process.env.CLIENT_URL}/api/v1/users/verify-email/${user.id}/${encodeURIComponent(hashToken)}`;
+
+    await transporter.sendMail({
+      from: process.env.ZOHO_EMAIL,
+      to: user.email,
+      subject: "Email Verification for Your Momee.id Account",
+      html: `
+      <h2> Hello, ${user.username} </h2>
+      <h3>Please click on given link to activate your account</h3>
+
+      <a href="${verificationLink}">
+      <button type="button" style="background: #34bbbc;
+               color: #ffffff;
+               padding: 1rem;
+               font-size: 14px;
+               line-height: 140%;
+               border: none;
+               cursor: pointer;
+               border-radius: 8px;">Verify Your Email</button>
+             </a>
+      <h3>or copy and paste the link below in your browser</3>
+      <p>${verificationLink}</p>
+  `,
+    });
+
+    res.status(200).json({
+      success: "true",
+      message: "Verification email resent successfully",
+    });
+
+    console.log(`Verification email resent to ${user.email} successfully`);
   } catch (error) {
     res.status(500).json({
       success: "false",

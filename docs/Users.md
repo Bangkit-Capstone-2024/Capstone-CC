@@ -73,6 +73,47 @@ Rsponse Body Error :
 }
 ```
 
+## Resend Verification Users via Email
+
+> Resend verification digunakan untuk user yang belum melakukan verifikasi email.
+
+Endpoint : GET /api/v1/users/resend-verification-email
+
+Request Body :
+
+```json
+{
+  "email": "robyyasiramri@gmail.com"
+}
+```
+
+Respons Body Success :
+
+```json
+{
+  "success": "true",
+  "message": "Verification email resent successfully"
+}
+```
+
+Respons Body Error/Sudah Verified :
+
+```json
+{
+  "success": "false",
+  "message": "Email is already verified"
+}
+```
+
+Respons Body Error/UserNotFound :
+
+```json
+{
+  "success": "false",
+  "message": "User not found"
+}
+```
+
 ## Login User API
 
 Endpoint : POST /api/v1/users/login
