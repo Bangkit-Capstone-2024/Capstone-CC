@@ -23,12 +23,11 @@ Response Body Success :
 ```json
 {
   "success": "true",
-  "message": "User created Successfully",
+  "message": "User created successfully. Please check your email to verify your account.",
   "data": {
     "id": 1,
     "email": "roby@byamri.com",
-    "username": "roby",
-    "token": "xxxxxx "
+    "username": "roby"
   }
 }
 ```
@@ -41,6 +40,36 @@ Response Body Error/Failed:
 {
   "success": "false",
   "errors": "Email already exists"
+}
+```
+
+## Verify Users via Email
+
+> Verify email didapatkan ketika user mendaftar menggunakan email dengan benar, dan status `isVerified` akan otomatis menjadi `true` ketika verifikasi berhasil dilakukan
+
+Endpoint : GET /api/v1/users/verify-email/:id/:token
+
+Response Body Success :
+
+```html
+<html>
+  <head>
+    <title>Email Verified!</title>
+  </head>
+
+  <body>
+    <h2>Hello, Roby Yasir Amri</h2>
+    <h2>Your account has been successfully verified</h2>
+  </body>
+</html>
+```
+
+Rsponse Body Error :
+
+```json
+{
+  "success": "false",
+  "message": "Invalid token or user does not exist"
 }
 ```
 
@@ -70,6 +99,8 @@ Response Body success :
   "data": {
     "id": 1,
     "email": "roby@byamri.com",
+    "username": "Roby Yasir Amri",
+    "isVerified": true,
     "token": "unique-token"
   }
 }
