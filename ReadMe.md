@@ -7,6 +7,7 @@ git clone -b dev https://github.com/Bangkit-Capstone-2024/Capstone-CC.git
 
 cp .env.example .env
 npm install
+npm install -g nodemon
 
 npx prisma migrate dev -n users_schema
 

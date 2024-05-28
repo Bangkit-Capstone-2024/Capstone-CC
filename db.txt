@@ -1,0 +1,47 @@
+mysql> CREATE USER 'momeeuser'@'%' IDENTIFIED WITH mysql_native_password BY 'M0m33123!';
+
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> CREATE DATABASE db_momee_dev DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+Query OK, 1 row affected, 2 warnings (0.07 sec)
+
+mysql> GRANT ALL ON db_momee_dev.\* TO 'momeeuser'@'%';
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> EXIT;
+
+GRANT PRIVILEGE ON database.table TO 'username'@'host';
+GRANT ALL PRIVILEGES ON _._ TO 'momeeuser'@'localhost' WITH GRANT OPTION;
+
+## CHANGE USER ROOT PASSWORD MYSQL
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'M0m33123!';
+
+## CREATE DB
+
+CREATE DATABASE db_momee_dev DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+## CREATE USER
+
+CREATE USER 'username'@'host' IDENTIFIED WITH authentication_plugin BY 'password';
+
+## GRANT ALL PRIVILEGES
+
+GRANT ALL PRIVILEGES ON *.* TO 'momeeuser'@'localhost' WITH GRANT OPTION;
+
+CREATE USER 'root'@'%' IDENTIFIED BY 'M0m33123!';
+GRANT ALL PRIVILEGES ON _._ TO 'root'@'%' WITH GRANT OPTION;
+
+
+mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'M0m33123!';
+Query OK, 0 rows affected (0.05 sec)
+
+mysql>
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+Query OK, 0 rows affected (0.14 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.02 sec)
