@@ -1,6 +1,6 @@
 node_modules
 # Keep environment variables out of version control
 .env
-schema.prisma.bak
+schemaprisma.bak
 package-lock.json
 db.txt
