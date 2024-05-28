@@ -1,6 +1,6 @@
 import rateLimit from "express-rate-limit";
 import express from "express";
-import { UsersCreate, UsersLogin, UsersLogout, UsersRead, UsersUpdate, UsersDelete, UsersAuth } from "../controllers/UsersControllers";
+import { UsersCreate, UsersLogin, UsersLogout, UsersRead, UsersUpdate, UsersDelete, UsersAuth, UsersVerifyEmail } from "../controllers/UsersControllers";
 const users_controllers = express.Router();
 
 const LimitLogin = rateLimit({
@@ -20,5 +20,7 @@ users_controllers.post("/users/read", UsersRead);
 users_controllers.patch("/users/update/:id", UsersUpdate);
 users_controllers.delete("/users/delete/:id", UsersDelete);
 users_controllers.get("/users/auth", UsersAuth);
+
+users_controllers.get("/users/verify-email/:id/:token", UsersVerifyEmail);
 
 export default users_controllers;

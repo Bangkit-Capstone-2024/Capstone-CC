@@ -20,5 +20,5 @@ model Users {
   password          String
   updated_at        DateTime @default(now())
   created_at        DateTime @default(now())
-
+  isVerified        Boolean  @default(false)
 }
