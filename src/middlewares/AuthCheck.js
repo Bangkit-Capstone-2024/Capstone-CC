@@ -22,7 +22,7 @@ export const authCheck = async (req, res, next) => {
     if (!verify) {
       res.status(401).json({
         success: "false",
-        message: "Login first to get tokens ?",
+        message: "Invalid Token",
       });
       return;
     }
@@ -43,3 +43,5 @@ export const authCheck = async (req, res, next) => {
     });
   }
 };
+
+module.exports = authCheck;

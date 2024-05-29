@@ -4,8 +4,13 @@ import jwt from "jsonwebtoken";
 import CryptoJS from "crypto-js";
 import env from "dotenv";
 import { UsersModels } from "../models/Models";
+import { TokensBlacklistModels } from "../models/Models";
 import { text } from "express";
 import nodemailer from "nodemailer";
+const fs = require("fs");
+const path = require("path");
+// const TokensBlacklistModels = require("../models/Models").tokenblacklist;
+
 // import { transporter } from "../middlewares/NodeMailerConfig";
 
 env.config();
@@ -65,30 +70,41 @@ export const UsersCreate = async (req, res) => {
 
     const hashToken = CryptoJS.AES.encrypt(token, process.env.API_SECRET).toString();
 
-    // Send verification email
+    // Generate verification link
     const verificationLink = `${process.env.CLIENT_URL}/api/v1/users/verify-email/${createUsers.id}/${encodeURIComponent(hashToken)}`;
 
+    // Read email template
+    const templatePath = path.join(__dirname, "../emailTemplates", "verificationEmail.html");
+    const template = fs.readFileSync(templatePath, "utf8");
+
+    // Replace placeholder with actual link
+    let htmlToSend = template.replace(/{{username}}/g, username);
+    htmlToSend = htmlToSend.replace(/{{email}}/g, email);
+    htmlToSend = htmlToSend.replace(/{{verificationLink}}/g, verificationLink);
+
+    // Send verification email
     await transporter.sendMail({
       from: process.env.ZOHO_EMAIL,
       to: createUsers.email,
       subject: "Email Verification for Your Momee.id Account",
-      html: `
-                <h2> Hello, ${username} </h2>
-                <h3>Please click on given link to activate your account</h3>
+      html: htmlToSend,
+      // html: `
+      //           <h2> Hello, ${username} </h2>
+      //           <h3>Please click on given link to activate your account</h3>
 
-                <a href="${verificationLink}">
-                <button type="button" style="background: #34bbbc;
-                         color: #ffffff;
-                         padding: 1rem;
-                         font-size: 14px;
-                         line-height: 140%;
-                         border: none;
-                         cursor: pointer;
-                         border-radius: 8px;">Verify Your Email</button>
-                       </a>
-                <h3>or copy and paste the link below in your browser</3>
-                <p>${verificationLink}</p>
-            `,
+      //           <a href="${verificationLink}">
+      //           <button type="button" style="background: #34bbbc;
+      //                    color: #ffffff;
+      //                    padding: 1rem;
+      //                    font-size: 14px;
+      //                    line-height: 140%;
+      //                    border: none;
+      //                    cursor: pointer;
+      //                    border-radius: 8px;">Verify Your Email</button>
+      //                  </a>
+      //           <h3>or copy and paste the link below in your browser</3>
+      //           <p>${verificationLink}</p>
+      //       `,
     });
 
     console.log(`Verification email sent to ${createUsers.email}`);
@@ -158,14 +174,25 @@ export const UsersVerifyEmail = async (req, res) => {
         isVerified: true,
       },
     });
+
+    // Read email template
+    const templatePath = path.join(__dirname, "../emailTemplates", "verifiedEmail.html");
+    const template = fs.readFileSync(templatePath, "utf8");
+
+    // Replace placeholder with actual link
+    let htmlToSend = template.replace(/{{username}}/g, user.username);
+    htmlToSend = htmlToSend.replace(/{{email}}/g, user.email);
+    // htmlToSend = htmlToSend.replace(/{{verificationLink}}/g, verificationLink);
+
     // Send notification email
     await transporter.sendMail({
       from: process.env.ZOHO_EMAIL,
       to: user.email,
       subject: "Email Verified Successfully!",
-      html: `<h1>Email Verified</h1>
-      <h2> Hello, ${user.username} </h2>
-      <p>Your account has been successfully verified. Please Login</p>`,
+      html: htmlToSend,
+      // html: `<h1>Email Verified</h1>
+      // <h2> Hello, ${user.username} </h2>
+      // <p>Your account has been successfully verified. Please Login</p>`,
     });
 
     console.log(`Verification email send to ${user.email}`);
@@ -239,30 +266,40 @@ export const UsersResendVerificationEmail = async (req, res) => {
 
     const hashToken = CryptoJS.AES.encrypt(token, process.env.API_SECRET).toString();
 
-    // Send verification email
+    // Generate verification link
     const verificationLink = `${process.env.CLIENT_URL}/api/v1/users/verify-email/${user.id}/${encodeURIComponent(hashToken)}`;
+
+    // Read email template
+    const templatePath = path.join(__dirname, "../emailTemplates", "verificationEmail.html");
+    const template = fs.readFileSync(templatePath, "utf8");
+
+    // Replace placeholder with actual link
+    let htmlToSend = template.replace(/{{username}}/g, user.username);
+    htmlToSend = htmlToSend.replace(/{{email}}/g, user.email);
+    htmlToSend = htmlToSend.replace(/{{verificationLink}}/g, verificationLink);
 
     await transporter.sendMail({
       from: process.env.ZOHO_EMAIL,
       to: user.email,
       subject: "Email Verification for Your Momee.id Account",
-      html: `
-      <h2> Hello, ${user.username} </h2>
-      <h3>Please click on given link to activate your account</h3>
+      html: htmlToSend,
+      //     html: `
+      //     <h2> Hello, ${user.username} </h2>
+      //     <h3>Please click on given link to activate your account</h3>
 
-      <a href="${verificationLink}">
-      <button type="button" style="background: #34bbbc;
-               color: #ffffff;
-               padding: 1rem;
-               font-size: 14px;
-               line-height: 140%;
-               border: none;
-               cursor: pointer;
-               border-radius: 8px;">Verify Your Email</button>
-             </a>
-      <h3>or copy and paste the link below in your browser</3>
-      <p>${verificationLink}</p>
-  `,
+      //     <a href="${verificationLink}">
+      //     <button type="button" style="background: #34bbbc;
+      //              color: #ffffff;
+      //              padding: 1rem;
+      //              font-size: 14px;
+      //              line-height: 140%;
+      //              border: none;
+      //              cursor: pointer;
+      //              border-radius: 8px;">Verify Your Email</button>
+      //            </a>
+      //     <h3>or copy and paste the link below in your browser</3>
+      //     <p>${verificationLink}</p>
+      // `,
     });
 
     res.status(200).json({
@@ -376,8 +413,8 @@ export const UsersRead = async (req, res) => {
 
 export const UsersUpdate = async (req, res) => {
   try {
-    const data = await req.body;
-    const { id } = await req.params;
+    const data = req.body;
+    const { id } = req.params;
 
     // CHECK UNIQUE ID
     const checkUniqueId = await UsersModels.findUnique({
@@ -393,24 +430,27 @@ export const UsersUpdate = async (req, res) => {
       });
     }
 
-    // CHECK UNIQUE USERNAME
-
-    const checkUniqueUsername = await UsersModels.findUnique({
-      where: {
-        id: parseInt(id),
-        username: data.username,
-      },
-    });
-    if (checkUniqueUsername) {
-      return res.status(401).json({
-        success: "false",
-        message: "Username already exists",
+    // CHECK UNIQUE USERNAME (if username is being changed)
+    if (data.username && data.username !== checkUniqueId.username) {
+      const checkUniqueUsername = await UsersModels.findFirst({
+        where: {
+          username: data.username,
+        },
       });
+
+      if (checkUniqueUsername) {
+        return res.status(401).json({
+          success: "false",
+          message: "Username already exists",
+        });
+      }
     }
 
-    let updatedData = {
-      username: data.username,
-    };
+    let updatedData = {};
+
+    if (data.username) {
+      updatedData.username = data.username;
+    }
 
     if (data.password) {
       const hashedPassword = await bcryptjs.hash(data.password, 10);
@@ -426,12 +466,46 @@ export const UsersUpdate = async (req, res) => {
 
     res.status(201).json({
       success: "true",
-      message: "User updated Successfully!",
+      message: "User updated successfully!",
       data: {
-        id: parseInt(id),
-        email: data.email,
-        username: data.username,
+        id: result.id,
+        email: result.email,
+        username: result.username,
       },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: "false",
+      error: error.message,
+    });
+  }
+};
+
+// USERS LOGOUT
+
+export const UsersLogout = async (req, res) => {
+  try {
+    const authHeader = await req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        success: "false",
+        message: "Access denied, token missing!",
+      });
+    }
+
+    // save the token to blacklist
+
+    await TokensBlacklistModels.create({
+      data: {
+        token: token,
+      },
+    });
+
+    res.status(200).json({
+      success: "true",
+      message: "Logout successfully",
     });
   } catch (error) {
     res.status(500).json({
@@ -475,6 +549,7 @@ export const UsersDelete = async (req, res) => {
       //     username: data.username,
       //   },
     });
+    console.log(`User ${checkId.username} deleted successfully`);
   } catch (error) {
     res.status(500).json({
       success: "false",

@@ -21,4 +21,24 @@ model Users {
   updated_at        DateTime @default(now())
   created_at        DateTime @default(now())
   isVerified        Boolean  @default(false)
+
+  tenants           Tenants[]
+}
+
+model TokenBlacklist {
+  id                Int      @id @default(autoincrement())
+  token             String   @unique @db.VarChar(512)
+  created_at        DateTime @default(now())
+}
+
+model Tenants {
+  id              Int      @id @default(autoincrement())
+  user_id         Int
+  name_tenants    String
+  address_tenants String
+  created_at      DateTime @default(now())
+
+  user            Users     @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
 }
