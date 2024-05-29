@@ -12,6 +12,8 @@ npm install -g nodemon
 npx prisma migrate dev -n users_schema
 
 npm run dev
+
+npm start
 ```
 
 > Should be changed at .env
