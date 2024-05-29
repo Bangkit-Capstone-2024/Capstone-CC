@@ -60,15 +60,23 @@ export const createTenant = async (req, res) => {
   }
 };
 
-// Mendapatkan semua tenant
+// Mendapatkan semua tenant dengan nama dan jumlah produk yang dimiliki
 export const getAllTenants = async (req, res) => {
   try {
-    const tenants = await TenantModels.findMany();
+    const tenants = await TenantModels.findMany({
+      include: {
+        products: true,
+      },
+    });
+
+    const tenantsWithProductCount = tenants.map((tenant) => ({
+      ...tenant,
+      totalProducts: tenant.products.length,
+    }));
 
     res.status(200).json({
       success: "true",
-      data: tenants,
-      tenants,
+      data: tenantsWithProductCount,
     });
   } catch (error) {
     res.status(500).json({
@@ -77,6 +85,36 @@ export const getAllTenants = async (req, res) => {
     });
   }
 };
+
+//Menampilkan semua tenant dengan jumlah atau total produk yang dimiliki
+
+// export const getAllTenants = async (req, res) => {
+//   try {
+//     const tenants = await TenantModels.findMany();
+
+//     const tenantsWithProductCount = await Promise.all(
+//       tenants.map(async (tenant) => {
+//         const totalProducts = await TenantModels.count({
+//           where: { id: tenant.id },
+//         });
+//         return {
+//           ...tenant,
+//           totalProducts,
+//         };
+//       })
+//     );
+
+//     res.status(200).json({
+//       success: "true",
+//       data: tenantsWithProductCount,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: "false",
+//       error: error.message,
+//     });
+//   }
+// };
 
 // Mendapatkan tenant berdasarkan ID
 export const getTenantById = async (req, res) => {
@@ -87,6 +125,13 @@ export const getTenantById = async (req, res) => {
       where: {
         id: parseInt(id),
       },
+      include: {
+        products: {
+          include: {
+            category: true,
+          },
+        },
+      },
     });
 
     if (!tenant) {
@@ -96,9 +141,15 @@ export const getTenantById = async (req, res) => {
       });
     }
 
+    // Hitung total produk yang dimiliki oleh tenant
+    const totalProducts = tenant.products.length;
+
     res.status(200).json({
       success: "true",
-      data: tenant,
+      data: {
+        ...tenant,
+        totalProducts,
+      },
     });
   } catch (error) {
     res.status(500).json({

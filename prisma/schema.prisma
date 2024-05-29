@@ -39,6 +39,38 @@ model Tenants {
   created_at      DateTime @default(now())
 
   user            Users     @relation(fields: [user_id], references: [id])
+  products        Product[]
+
 
   @@index([user_id])
 }
+
+model Category {
+  id              Int       @id @default(autoincrement())
+  name_categories String
+  created_at      DateTime  @default(now())
+
+  products        Product[]
+}
+
+model Product {
+  id             Int       @id @default(autoincrement())
+  name_products  String
+  slug           String    @unique
+  pictures       String
+  description    String
+  price          Float
+  stock          Int
+  is_available   Boolean   @default(true)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  category_id    Int
+  tenant_id      Int
+
+  category       Category  @relation(fields: [category_id], references: [id])
+  tenant         Tenants    @relation(fields: [tenant_id], references: [id])
+
+  @@index([category_id])
+  @@index([tenant_id])
+}
+

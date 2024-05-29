@@ -2,7 +2,7 @@ const express = require("express");
 const tenant_controllers = express.Router();
 const authCheck = require("../middlewares/AuthCheck");
 
-import { createTenant, getAllTenants, getTenantById, updateTenant, deleteTenant } from "../controllers/TenantController"; // Sesuaikan dengan path controller Anda
+import { createTenant, getAllTenants, getTenantById, updateTenant, deleteTenant } from "../controllers/tenantController"; // Sesuaikan dengan path controller Anda
 
 tenant_controllers.post("/tenants", authCheck, createTenant);
 tenant_controllers.get("/tenants", getAllTenants);

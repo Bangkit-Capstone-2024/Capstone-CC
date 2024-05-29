@@ -80,15 +80,54 @@ Respons Body Success :
 ```json
 {
   "success": "true",
-  "data": [
-    {
-      "id": 1,
-      "user_id": 46,
-      "name_tenants": "Tenant Name",
-      "address_tenants": "Tenant Address",
-      "created_at": "2024-05-29T09:20:02.361Z"
-    }
-  ]
+  "data": {
+    "id": 5,
+    "user_id": 46,
+    "name_tenants": "Tenant Name",
+    "address_tenants": "Tenant Address",
+    "created_at": "2024-05-29T09:21:54.933Z",
+    "products": [
+      {
+        "id": 3,
+        "name_products": "Stroller Lucu 2",
+        "slug": "stroller-lucu-2",
+        "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg",
+        "description": "A high-end smartphone with 128GB storage",
+        "price": 100,
+        "stock": 2,
+        "is_available": true,
+        "created_at": "2024-05-29T16:17:36.780Z",
+        "updated_at": "2024-05-29T16:17:36.780Z",
+        "category_id": 1,
+        "tenant_id": 5,
+        "category": {
+          "id": 1,
+          "name_categories": "Stroller",
+          "created_at": "2024-05-29T16:08:18.905Z"
+        }
+      },
+      {
+        "id": 5,
+        "name_products": "Stroller Lucu 23",
+        "slug": "stroller-lucu-23",
+        "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg",
+        "description": "A high-end smartphone with 128GB storage",
+        "price": 100000,
+        "stock": 2,
+        "is_available": true,
+        "created_at": "2024-05-29T16:38:20.007Z",
+        "updated_at": "2024-05-29T16:38:20.007Z",
+        "category_id": 1,
+        "tenant_id": 5,
+        "category": {
+          "id": 1,
+          "name_categories": "Stroller",
+          "created_at": "2024-05-29T16:08:18.905Z"
+        }
+      }
+    ],
+    "totalProducts": 2
+  }
 }
 ```
 

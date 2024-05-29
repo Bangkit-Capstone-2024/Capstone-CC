@@ -51,11 +51,15 @@ app.use(express.static(path.join(__dirname, "../static")));
 
 import { rateLimit } from "express-rate-limit";
 import users_controllers from "./routes/UsersRoutes";
-import tenant_controllers from "./routes/TenantRoutes";
+import tenant_controllers from "./routes/tenantRoutes";
+import category_controllers from "./routes/CategoryRoutes";
+import product_controllers from "./routes/productRoutes";
 
 // ROUTES
 
 app.use("/api/v1", users_controllers);
 app.use("/api/v1", tenant_controllers);
+app.use("/api/v1", category_controllers);
+app.use("/api/v1", product_controllers);
 
 export { app };
