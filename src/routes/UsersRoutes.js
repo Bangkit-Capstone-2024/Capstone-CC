@@ -22,7 +22,7 @@ users_controllers.post("/users/login", LimitLogin, UsersLogin);
 users_controllers.post("/users/read", authCheck, UsersRead);
 users_controllers.patch("/users/update/:id", authCheck, UsersUpdate);
 users_controllers.delete("/users/delete/:id", authCheck, CheckBlacklist, UsersDelete);
-users_controllers.get("/users/auth", UsersAuth);
+// users_controllers.get("/users/auth", UsersAuth);
 
 users_controllers.get("/users/verify-email/:id/:token", UsersVerifyEmail);
 users_controllers.post("/users/resend-verification-email", UsersResendVerificationEmail);

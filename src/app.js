@@ -8,10 +8,6 @@ env.config();
 const app = express();
 // const PORT = process.env.PORT;
 
-import { rateLimit } from "express-rate-limit";
-import users_controllers from "./routes/UsersRoutes";
-import tenant_controllers from "./routes/TenantRoutes";
-
 // RATE LIMIT, THE PROCESS OF LIMITING THE NUMBER OF USER/CLIENT REQUSET ON CERTAIN RESOURCES
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -52,6 +48,10 @@ app.use(limiter);
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "../static")));
+
+import { rateLimit } from "express-rate-limit";
+import users_controllers from "./routes/UsersRoutes";
+import tenant_controllers from "./routes/TenantRoutes";
 
 // ROUTES
 

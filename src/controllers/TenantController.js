@@ -50,6 +50,7 @@ export const createTenant = async (req, res) => {
       success: "true",
       message: "Tenant created successfully",
       data: tenant,
+      tenant,
     });
   } catch (error) {
     res.status(500).json({
@@ -67,6 +68,7 @@ export const getAllTenants = async (req, res) => {
     res.status(200).json({
       success: "true",
       data: tenants,
+      tenants,
     });
   } catch (error) {
     res.status(500).json({
