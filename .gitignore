@@ -4,6 +4,6 @@ node_modules
 ./prisma/migrations
 schemaprisma.bak
 package-lock.json
-creadentials
+credentials
 db.txt
 productControllerbak.txt
