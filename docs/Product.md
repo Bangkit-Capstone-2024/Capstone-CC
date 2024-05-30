@@ -4,18 +4,20 @@
 
 Endpoint : POST /api/v1/products
 
-Request Body :
+Request Body menggunakan form-data:
+
+> semua key berupa `Text` kecuali pictures menggunakan `File`
 
 ```json
 {
   "name_products": "Stroller Lucu",
-  "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg",
-  "description": "A high-end smartphone with 128GB storage",
+  "description": "Example Description Product",
   "price": 100.0,
   "stock": 3,
   "is_available": true,
   "category_id": 1, // Pastikan ini sesuai dengan ID kategori yang ada
-  "tenant_id": 5 // Pastikan ini sesuai dengan ID tenant yang ada
+  "tenant_id": 5, // Pastikan ini sesuai dengan ID tenant yang ada
+  "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg"
 }
 ```
 
@@ -161,18 +163,20 @@ Response Body Success :
 
 Endpoint : PATCH /api/v1/products/:id
 
-Request Body :
+Request Body menggunakan form-data:
+
+> semua key berupa `Text` kecuali pictures menggunakan `File`
 
 ```json
 {
   "name_products": "Stroller Lucu Update",
-  "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg",
-  "description": "Description Products",
+  "description": "Example Description Product",
   "price": 100.0,
-  "stock": 50,
+  "stock": 3,
   "is_available": true,
   "category_id": 1, // Pastikan ini sesuai dengan ID kategori yang ada
-  "tenant_id": 5 // Pastikan ini sesuai dengan ID tenant yang ada
+  "tenant_id": 5, // Pastikan ini sesuai dengan ID tenant yang ada
+  "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg"
 }
 ```
 

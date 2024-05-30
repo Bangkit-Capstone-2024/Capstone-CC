@@ -1,13 +1,54 @@
 import { PrismaClient } from "@prisma/client";
-import slugify from "slugify";
 import { ProductModels } from "../models/Models";
 import { TenantModels } from "../models/Models";
+import { Storage } from "@google-cloud/storage";
+import slugify from "slugify";
+import crypto from "crypto";
+import dotenv from "dotenv";
+import multer from "multer";
+import express from "express";
+
+dotenv.config();
 
 const prisma = new PrismaClient();
+const storage = new Storage();
+
+const bucketName = process.env.GCS_BUCKET_NAME;
+
+// Upload image to Google Cloud Storage
+
+const uploadImageToGCS = async (file, folderName) => {
+  const bucket = storage.bucket(bucketName);
+  const fileName = `${folderName}/${crypto.randomBytes(16).toString("hex")}-${file.originalname}`;
+  const blob = bucket.file(fileName);
+
+  return new Promise((resolve, reject) => {
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+      contentType: file.mimetype,
+    });
+
+    blobStream.on("finish", () => {
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+      resolve(publicUrl);
+    });
+
+    blobStream.on("error", (err) => {
+      reject(err);
+    });
+
+    blobStream.end(file.buffer);
+  });
+};
+
+const generateUniqueSlug = (name) => {
+  const randomString = crypto.randomBytes(4).toString("hex");
+  return `${slugify(name, { lower: true, strict: true })}-${randomString}`;
+};
 
 export const createProduct = async (req, res) => {
   try {
-    const { name_products, pictures, description, price, stock, is_available, category_id, tenant_id } = req.body;
+    const { name_products, description, price, stock, is_available, category_id, tenant_id } = req.body;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
     const tenant = await TenantModels.findUnique({
@@ -24,17 +65,27 @@ export const createProduct = async (req, res) => {
     }
 
     // Generate slug based on product name
-    const slug = slugify(name_products, { lower: true, strict: true });
+    // const slug = slugify(name_products, { lower: true, strict: true });
+    const slug = generateUniqueSlug(name_products);
+
+    let pictureUrls = [];
+    // if (req.file) {
+    //   pictureUrl = await uploadImageToGCS(req.file, tenant.name_tenants);
+    // }
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) => uploadImageToGCS(file, tenant.name_tenants));
+      pictureUrls = await Promise.all(uploadPromises);
+    }
 
     const product = await ProductModels.create({
       data: {
         name_products,
         slug,
-        pictures,
+        pictures: JSON.stringify(pictureUrls), // Join multiple URLs with comma
         description,
-        price,
+        price: parseFloat(price),
         stock: parseInt(stock),
-        is_available,
+        is_available: is_available === "true" ? true : false,
         category_id: parseInt(category_id),
         tenant_id: parseInt(tenant_id),
       },
@@ -52,11 +103,14 @@ export const createProduct = async (req, res) => {
     });
   }
 };
+// // Middleware untuk menangani upload file menggunakan Multer
+// const upload = multer({ storage: multer.memoryStorage() });
 
+// Update product
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name_products, slug, pictures, description, price, stock, is_available, category_id, tenant_id } = req.body;
+    const { name_products, description, price, stock, is_available, category_id, tenant_id } = req.body;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
     const tenant = await TenantModels.findUnique({
@@ -72,20 +126,28 @@ export const updateProduct = async (req, res) => {
       });
     }
 
+    // Upload picture to Google Cloud Storage
+
+    let pictureUrls = [];
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) => uploadImageToGCS(file, tenant.name_tenants));
+      const newPictureUrls = await Promise.all(uploadPromises);
+      pictureUrls = [...pictureUrls, ...newPictureUrls];
+    }
+
     const product = await ProductModels.update({
       where: {
         id: parseInt(id),
       },
       data: {
         name_products,
-        slug,
-        pictures,
+        slug: generateUniqueSlug(name_products),
+        pictures: JSON.stringify(pictureUrls),
         description,
-        price,
+        price: parseFloat(price),
         stock: parseInt(stock),
-        is_available,
+        is_available: is_available === "true" ? true : false,
         category_id: parseInt(category_id),
-        tenant_id: parseInt(tenant_id),
       },
     });
 

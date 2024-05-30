@@ -59,7 +59,7 @@ model Product {
   id             Int       @id @default(autoincrement())
   name_products  String
   slug           String    @unique
-  pictures       String
+  pictures       String    @db.VarChar(512)
   description    String
   price          Float
   stock          Int
