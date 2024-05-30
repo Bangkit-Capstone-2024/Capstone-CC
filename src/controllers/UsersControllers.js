@@ -2,6 +2,7 @@ const salt = bcryptjs.genSaltSync(10);
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import CryptoJS from "crypto-js";
+import crypto from "crypto";
 import env from "dotenv";
 import { UsersModels } from "../models/Models";
 import { TokensBlacklistModels } from "../models/Models";
@@ -88,23 +89,6 @@ export const UsersCreate = async (req, res) => {
       to: createUsers.email,
       subject: "Email Verification for Your Momee.id Account",
       html: htmlToSend,
-      // html: `
-      //           <h2> Hello, ${username} </h2>
-      //           <h3>Please click on given link to activate your account</h3>
-
-      //           <a href="${verificationLink}">
-      //           <button type="button" style="background: #34bbbc;
-      //                    color: #ffffff;
-      //                    padding: 1rem;
-      //                    font-size: 14px;
-      //                    line-height: 140%;
-      //                    border: none;
-      //                    cursor: pointer;
-      //                    border-radius: 8px;">Verify Your Email</button>
-      //                  </a>
-      //           <h3>or copy and paste the link below in your browser</3>
-      //           <p>${verificationLink}</p>
-      //       `,
     });
 
     console.log(`Verification email sent to ${createUsers.email}`);
@@ -118,7 +102,7 @@ export const UsersCreate = async (req, res) => {
         username: createUsers.username,
       },
     });
-    //Kirim email verifikasi LOG
+    //Logging Kirim email verifikasi
     console.log(`User ${createUsers.username} created successfully. Email verification sent to ${createUsers.email}`);
   } catch (error) {
     res.status(500).json({
@@ -190,9 +174,6 @@ export const UsersVerifyEmail = async (req, res) => {
       to: user.email,
       subject: "Email Verified Successfully!",
       html: htmlToSend,
-      // html: `<h1>Email Verified</h1>
-      // <h2> Hello, ${user.username} </h2>
-      // <p>Your account has been successfully verified. Please Login</p>`,
     });
 
     console.log(`Verification email send to ${user.email}`);
@@ -283,23 +264,6 @@ export const UsersResendVerificationEmail = async (req, res) => {
       to: user.email,
       subject: "Email Verification for Your Momee.id Account",
       html: htmlToSend,
-      //     html: `
-      //     <h2> Hello, ${user.username} </h2>
-      //     <h3>Please click on given link to activate your account</h3>
-
-      //     <a href="${verificationLink}">
-      //     <button type="button" style="background: #34bbbc;
-      //              color: #ffffff;
-      //              padding: 1rem;
-      //              font-size: 14px;
-      //              line-height: 140%;
-      //              border: none;
-      //              cursor: pointer;
-      //              border-radius: 8px;">Verify Your Email</button>
-      //            </a>
-      //     <h3>or copy and paste the link below in your browser</3>
-      //     <p>${verificationLink}</p>
-      // `,
     });
 
     res.status(200).json({
@@ -431,20 +395,20 @@ export const UsersUpdate = async (req, res) => {
     }
 
     // CHECK UNIQUE USERNAME (if username is being changed)
-    if (data.username && data.username !== checkUniqueId.username) {
-      const checkUniqueUsername = await UsersModels.findFirst({
-        where: {
-          username: data.username,
-        },
-      });
+    // if (data.username && data.username !== checkUniqueId.username) {
+    //   const checkUniqueUsername = await UsersModels.findFirst({
+    //     where: {
+    //       username: data.username,
+    //     },
+    //   });
 
-      if (checkUniqueUsername) {
-        return res.status(401).json({
-          success: "false",
-          message: "Username already exists",
-        });
-      }
-    }
+    //   if (checkUniqueUsername) {
+    //     return res.status(401).json({
+    //       success: "false",
+    //       message: "Username already exists",
+    //     });
+    //   }
+    // }
 
     let updatedData = {};
 
@@ -614,6 +578,148 @@ export const UsersAuth = async (req, res) => {
       success: "true",
       message: "User data",
       query: getUserData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: "false",
+      message: error.message,
+    });
+  }
+};
+
+// USERS RESET/FORGOT PASSWORD
+
+export const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await UsersModels.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: "false",
+        message: "User with this email does not exist",
+      });
+    }
+
+    const token = crypto.randomBytes(20).toString("hex");
+    const expires = new Date(Date.now() + 3600000); // 1 hour
+
+    await UsersModels.update({
+      where: { email },
+      data: {
+        resetPasswordToken: token,
+        resetPasswordExpires: expires,
+      },
+    });
+
+    // Generate resetPasswordLink
+
+    const resetPasswordLink = `${process.env.CLIENT_URL}/api/v1/users/reset/${token}`;
+
+    // Read email template
+    const templatePath = path.join(__dirname, "../emailTemplates", "requestResetPassword.html");
+    const template = fs.readFileSync(templatePath, "utf8");
+
+    // Replace placeholder with actual link
+    let htmlToSend = template.replace(/{{username}}/g, user.username);
+    htmlToSend = htmlToSend.replace(/{{email}}/g, user.email);
+    htmlToSend = htmlToSend.replace(/{{resetPasswordLink}}/g, resetPasswordLink);
+
+    const mailOptions = {
+      from: process.env.ZOHO_EMAIL,
+      to: user.email,
+      subject: "Reset Password Request",
+      html: htmlToSend,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error(`Error sending email: ${err}`);
+        return res.status(500).json({
+          success: "false",
+          message: "Error sending email",
+          error: err.message,
+        });
+      }
+
+      console.log(`Reset Password send to ${user.email}`);
+      res.status(200).json({
+        success: "true",
+        message: "Email sent to " + email + " with further instructions",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: "false",
+      message: error.message,
+    });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const user = await UsersModels.findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: {
+          gte: new Date(),
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: "false",
+        message: "Password reset token is invalid or has expired",
+      });
+    }
+
+    const hashedPassword = await bcryptjs.hash(password, 10);
+    await UsersModels.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        password: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
+    });
+
+    // Read email template
+    const templatePath = path.join(__dirname, "../emailTemplates", "confirmResetPassword.html");
+    const template = fs.readFileSync(templatePath, "utf8");
+
+    // Replace placeholder with actual link
+    let htmlToSend = template.replace(/{{username}}/g, user.username);
+    htmlToSend = htmlToSend.replace(/{{email}}/g, user.email);
+
+    const mailOptions = {
+      from: process.env.ZOHO_EMAIL,
+      to: user.email,
+      subject: "Password Reset Confirmation",
+      html: htmlToSend,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error("Error sending confirmation email:", err);
+      } else {
+        console.log("Confirmation email sent:" + email);
+      }
+    });
+
+    res.status(200).json({
+      success: "true",
+      message: "Password has been reset and a confirmation email has been sent.",
     });
   } catch (error) {
     res.status(500).json({

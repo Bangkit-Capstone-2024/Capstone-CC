@@ -310,3 +310,67 @@ Response Body Error :
   "message": "User id not found"
 }
 ```
+
+## User Request Reset Password
+
+Endpoint : /api/v1/users/request-password-reset
+
+> Ini digunakan untuk user melakukan request password, dan token akan dikirim via email dan valid selama 1 jam
+
+Request Body :
+
+```json
+{
+  "email": "robyyasiramri@gmail.com"
+}
+```
+
+Response Body Success:
+
+```json
+{
+  "success": "true",
+  "message": "Email sent to robyyasiramri@gmail.com with further instructions"
+}
+```
+
+Response Body Error:
+
+```json
+{
+  "success": "false",
+  "message": "User with this email does not exist"
+}
+```
+
+## Reset Password
+
+Endpoint : /api/v1/users/reset/:token
+
+> Setelah melakukan request password, akan mendapatkan link berisi token
+
+Request Body :
+
+```json
+{
+  "password": "new-password"
+}
+```
+
+Respons Body Success :
+
+```json
+{
+  "success": "true",
+  "message": "Password has been reset successfully"
+}
+```
+
+Response Body Error :
+
+```json
+{
+  "success": "false",
+  "message": "Password reset token is invalid or has expired"
+}
+```

@@ -1,6 +1,6 @@
 import rateLimit from "express-rate-limit";
 import express from "express";
-import { UsersCreate, UsersLogin, UsersLogout, UsersRead, UsersUpdate, UsersDelete, UsersAuth, UsersVerifyEmail, UsersResendVerificationEmail } from "../controllers/UsersControllers";
+import { UsersCreate, UsersLogin, UsersLogout, UsersRead, UsersUpdate, UsersDelete, UsersAuth, UsersVerifyEmail, UsersResendVerificationEmail, requestPasswordReset, resetPassword } from "../controllers/UsersControllers";
 const CheckBlacklist = require("../middlewares/CheckBlacklist");
 const authCheck = require("../middlewares/AuthCheck");
 
@@ -26,6 +26,9 @@ users_controllers.delete("/users/delete/:id", authCheck, CheckBlacklist, UsersDe
 
 users_controllers.get("/users/verify-email/:id/:token", UsersVerifyEmail);
 users_controllers.post("/users/resend-verification-email", UsersResendVerificationEmail);
+
+users_controllers.post("/users/request-password-reset", requestPasswordReset);
+users_controllers.post("/users/reset/:token", resetPassword);
 
 users_controllers.post("/users/logout", authCheck, CheckBlacklist, UsersLogout);
 

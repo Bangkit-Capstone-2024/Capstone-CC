@@ -18,6 +18,8 @@ model Users {
   email             String   @unique
   username          String
   password          String
+  resetPasswordToken String?
+  resetPasswordExpires DateTime?
   updated_at        DateTime @default(now())
   created_at        DateTime @default(now())
   isVerified        Boolean  @default(false)
