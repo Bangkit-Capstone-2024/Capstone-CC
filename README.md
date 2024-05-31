@@ -37,7 +37,13 @@ Navigation Menu > Storage > Browser > Create Bucket > (Name Bucket) > Create
 
 ```
 
-4. Create Service Account
+4. Give Public Access for Bucket
+
+```
+Bucket Name > PERMISSIONS > + GRANT ACCESS > New Principals : allUsers > Roles: Storage Object Viewer
+```
+
+5. Create Service Account
 
 ```
 a. Open Navigation Menu > IAM & Admin > Service Account
@@ -52,7 +58,7 @@ i. Download JSON File and Save
 j. create and save JSON file to new Folder  : `mkdir credeentials`
 ```
 
-5. Edit .env
+6. Edit .env
 
 ```
 GOOGLE_APPLICATION_CREDENTIALS=./credentials/<service-account.json>

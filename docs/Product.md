@@ -121,6 +121,82 @@ Respons Body :
 }
 ```
 
+## Search Product by Name
+
+Endpoint : GET /api/v1/products/search?name={name_products}
+
+Response Body Success :
+
+```json
+{
+  "success": "true",
+  "message": "Products retrieved successfully",
+  "data": [
+    {
+      "id": 18,
+      "name_products": "Baby Car Seat",
+      "slug": "baby-car-seat-ca246647",
+      "pictures": "[]",
+      "description": "Example Description Product",
+      "price": 8500,
+      "stock": 2,
+      "is_available": true,
+      "created_at": "2024-05-31T03:18:56.828Z",
+      "updated_at": "2024-05-31T03:18:56.828Z",
+      "category_id": 3,
+      "tenant_id": 10,
+      "category": {
+        "id": 3,
+        "name_categories": "Baby Car Seat",
+        "created_at": "2024-05-29T16:11:37.213Z"
+      },
+      "tenant": {
+        "id": 10,
+        "user_id": 45,
+        "name_tenants": "Roby Stores",
+        "address_tenants": "Jakarta Barat",
+        "created_at": "2024-05-30T08:00:52.209Z"
+      }
+    },
+    {
+      "id": 19,
+      "name_products": "Baby Car Seat 1",
+      "slug": "baby-car-seat-1-06f91f5f",
+      "pictures": "[]",
+      "description": "Example Description Product",
+      "price": 8500,
+      "stock": 2,
+      "is_available": true,
+      "created_at": "2024-05-31T03:19:05.813Z",
+      "updated_at": "2024-05-31T03:19:05.813Z",
+      "category_id": 3,
+      "tenant_id": 10,
+      "category": {
+        "id": 3,
+        "name_categories": "Baby Car Seat",
+        "created_at": "2024-05-29T16:11:37.213Z"
+      },
+      "tenant": {
+        "id": 10,
+        "user_id": 45,
+        "name_tenants": "Roby Stores",
+        "address_tenants": "Jakarta Barat",
+        "created_at": "2024-05-30T08:00:52.209Z"
+      }
+    }
+  ]
+}
+```
+
+Response Body Error :
+
+```json
+{
+  "success": "false",
+  "message": "No products found with the given name"
+}
+```
+
 ## Show Product by Id:
 
 Endpoint : GET /api/v1/products/:id

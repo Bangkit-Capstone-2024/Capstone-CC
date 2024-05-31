@@ -209,6 +209,7 @@ export const getProductById = async (req, res) => {
 
     res.status(200).json({
       success: "true",
+      message: "Product retrieved successfully",
       data: product,
     });
   } catch (error) {
@@ -247,6 +248,53 @@ export const deleteProduct = async (req, res) => {
       message: "Product deleted successfully",
     });
   } catch (error) {
+    res.status(500).json({
+      success: "false",
+      error: error.message,
+    });
+  }
+};
+
+// Search product by name
+
+export const searchProducts = async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    if (!name) {
+      return res.status(400).json({
+        success: "false",
+        message: "Please provide a search term",
+      });
+    }
+
+    const products = await ProductModels.findMany({
+      where: {
+        name_products: {
+          contains: name,
+          //   mode: "insensitive",
+        },
+      },
+      include: {
+        category: true,
+        tenant: true,
+      },
+    });
+
+    if (products.length === 0) {
+      return res.status(404).json({
+        success: "false",
+        message: "No products found with the given name",
+      });
+    }
+
+    res.status(200).json({
+      success: "true",
+      message: "Products retrieved successfully",
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error searching for products", error);
     res.status(500).json({
       success: "false",
       error: error.message,
