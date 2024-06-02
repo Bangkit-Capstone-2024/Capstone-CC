@@ -1,8 +1,8 @@
 # Tenants API Spec
 
-## Create Tenant
+<details><summary>Create Tenant</summary>
 
-Endpoint : POST /api/v1/tenants
+### Endpoint : ```POST /api/v1/tenants```
 
 > Setiap User hanya diijinkan untuk membuat 1 tenant
 
@@ -49,10 +49,11 @@ Respons Body Error (Jika user sudah mempunyai tenant):
   "message": "User already has a tenant"
 }
 ```
+</details>
 
-## Show All Tenants
+<details><summary>Show All Tenants</summary>
 
-Endpoint : GET /api/v1/tenants
+### Endpoint : ```GET /api/v1/tenants```
 
 Respons Body Success :
 
@@ -70,10 +71,11 @@ Respons Body Success :
   ]
 }
 ```
+</details>
 
-## Show Tenants by Id
+<details><summary>Show Tenants by Id</summary>
 
-Endpoint : GET /api/v1/tenants/:id
+### Endpoint : ```GET /api/v1/tenants/:id```
 
 Respons Body Success :
 
@@ -139,10 +141,11 @@ Respons Body Error :
   "message": "Tenant not found"
 }
 ```
+</details>
 
-## Update Tenant by Id
+<details><summary>Update Tenant by Id</summary>
 
-Endpoint : PATCH /api/v1/tenants/:id
+### Endpoint : ```PATCH /api/v1/tenants/:id```
 
 Request Body :
 
@@ -169,9 +172,11 @@ Response Budy Success
 }
 ```
 
-## Delete Tenant by Id
+</details>
 
-Endpoint : DELETE /api/v1/tenants/:id
+<details><summary>Delete Tenant by Id</summary>
+
+### Endpoint : ```DELETE /api/v1/tenants/:id```
 
 Response Body Success
 
@@ -190,3 +195,4 @@ Response Body Error :
   "message": "Tenant not found or already deleted!"
 }
 ```
+</details>

@@ -1,8 +1,8 @@
 # Category API Spec
 
-## Create New Category
+<details><summary>Create New Category</summary>
 
-Endpoint : POST /api/v1/categories
+### Endpoint : ```POST /api/v1/categories```
 
 Request Body :
 
@@ -25,10 +25,11 @@ Response Body :
   }
 }
 ```
+</details>
 
-## Show All Categories
+<details><summary>Show All Categories</summary>
 
-Endpoint : GET /api/v1/categories
+### Endpoint : ```GET /api/v1/categories```
 
 Response Body :
 
@@ -54,10 +55,11 @@ Response Body :
   ]
 }
 ```
+</details>
 
-## Delete Category by Id
+<details><summary>Delete Category by Id</summary>
 
-Endpoint : DELETE /api/v1/categories/:id
+### Endpoint : ```DELETE /api/v1/categories/:id```
 
 Response Body Success :
 
@@ -76,3 +78,4 @@ Response Body Error :
   "message": "Category not found or already deleted!"
 }
 ```
+</details>

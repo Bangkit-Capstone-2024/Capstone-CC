@@ -1,8 +1,8 @@
 # User API Spec
 
-## Register User API
+<details><summary>Register User API</summary>
 
-Endpoint : POST /api/v1/users/create
+### Endpoint : ```POST /api/v1/users/create```
 
 Request Body :
 
@@ -43,11 +43,13 @@ Response Body Error/Failed:
 }
 ```
 
-## Verify Users via Email
+</details>
+
+<details><summary>Verify Users via Email</summary>
 
 > Verify email didapatkan ketika user mendaftar menggunakan email dengan benar, dan status `isVerified` akan otomatis menjadi `true` ketika verifikasi berhasil dilakukan
 
-Endpoint : GET /api/v1/users/verify-email/:id/:token
+### Endpoint : ```GET /api/v1/users/verify-email/:id/:token```
 
 Response Body Success :
 
@@ -73,7 +75,10 @@ Rsponse Body Error :
 }
 ```
 
-## Resend Verification Users via Email
+</details>
+
+<details><summary>Resend Verification Users via Email</summary>
+
 
 > Resend verification digunakan untuk user yang belum melakukan verifikasi email.
 
@@ -114,9 +119,11 @@ Respons Body Error/UserNotFound :
 }
 ```
 
-## Login User API
+</details>
 
-Endpoint : POST /api/v1/users/login
+<details><summary>Login User API</summary>
+
+### Endpoint : ```POST /api/v1/users/login```
 
 Request Body :
 
@@ -158,9 +165,11 @@ Response body error :
 }
 ```
 
-## Update User API
+</details>
 
-Endpoint: PATCH /api/v1/users/update/{id}
+<details><summary>Update User API</summary>
+
+### Endpoint: ```PATCH /api/v1/users/update/{id}```
 
 > Melakukan update users berdasarkan ID. Untuk memastikan user telah terupdate, bisa mengunakan `Get User List API` dan filter berdasarkan ID.
 
@@ -211,9 +220,11 @@ Response body error :
 }
 ```
 
-## Get User List API
+</details>
 
-Endpoint : POST /api/v1/users/read
+<details><summary>Get User List API</summary>
+
+### Endpoint : ```POST /api/v1/users/read```
 
 > Untuk menampilkan semua existing users. Kita juga bisa menggunakan filter berdasarkan id, email dan username
 
@@ -289,9 +300,12 @@ Response body error :
 }
 ```
 
-## Logout User API
+</details>
 
-Endpoint : DELETE /api/v1/users/delete/{id}
+<details><summary>Logout User API</summary>
+
+
+### Endpoint : ```DELETE /api/v1/users/delete/{id}```
 
 Reponse body Success :
 
@@ -311,9 +325,13 @@ Response Body Error :
 }
 ```
 
-## User Request Reset Password
+</details>
 
-Endpoint : /api/v1/users/request-password-reset
+
+<details><summary>User Request Reset Password</summary>
+
+
+### Endpoint : ```POST /api/v1/users/request-password-reset```
 
 > Ini digunakan untuk user melakukan request password, dan token akan dikirim via email dan valid selama 1 jam
 
@@ -343,9 +361,12 @@ Response Body Error:
 }
 ```
 
-## Reset Password
+</details>
 
-Endpoint : /api/v1/users/reset/:token
+<details><summary>Reset Password</summary>
+
+
+### Endpoint : ```POST /api/v1/users/reset/:token```
 
 > Setelah melakukan request password, akan mendapatkan link berisi token
 
@@ -374,3 +395,5 @@ Response Body Error :
   "message": "Password reset token is invalid or has expired"
 }
 ```
+
+</details>

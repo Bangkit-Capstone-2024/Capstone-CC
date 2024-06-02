@@ -1,8 +1,8 @@
 # Product API Spec
 
-## Create Product
+<details><summary>Create Product</summary>
 
-Endpoint : POST /api/v1/products
+### Endpoint : ```POST /api/v1/products```
 
 Request Body menggunakan form-data:
 
@@ -55,9 +55,11 @@ Respons Body Error :
 }
 ```
 
-## Show All Product :
+</details>
 
-Endpoint : GET /api/v1/products
+<details><summary>Show All Product</summary>
+
+### Endpoint : ```GET /api/v1/products```
 
 Respons Body :
 
@@ -120,10 +122,11 @@ Respons Body :
   ]
 }
 ```
+</details>
 
-## Search Product by Name
+<details><summary>Search Product by Name</summary>
 
-Endpoint : GET /api/v1/products/search?name={name_products}
+### Endpoint : ```GET /api/v1/products/search?name={name_products}```
 
 Response Body Success :
 
@@ -196,10 +199,11 @@ Response Body Error :
   "message": "No products found with the given name"
 }
 ```
+</details>
 
-## Show Product by Id:
+<details><summary>Show Product by Id</summary>
 
-Endpoint : GET /api/v1/products/:id
+### Endpoint : ```GET /api/v1/products/:id```
 
 Response Body Success :
 
@@ -234,10 +238,11 @@ Response Body Success :
   }
 }
 ```
+</details>
 
-## Update Product by Id :
+<details><summary>Update Product by Id</summary>
 
-Endpoint : PATCH /api/v1/products/:id
+### Endpoint : ```PATCH /api/v1/products/:id```
 
 Request Body menggunakan form-data:
 
@@ -287,10 +292,11 @@ Respons Body Error :
   "message": "Tenant not found!"
 }
 ```
+</details>
 
-## Delete Product by Id :
+<details><summary>Delete Product by Id</summary>
 
-Endpoint : DELETE /api/v1/products/:id
+### Endpoint : ```DELETE /api/v1/products/:id```
 
 Response Body Success:
 
@@ -312,3 +318,4 @@ Response Body Success:
 
 1. Nama Product harus unik atau bisa sama?
 2. Jika nama product sama, bagaimana dengan slug-nya?
+</details>

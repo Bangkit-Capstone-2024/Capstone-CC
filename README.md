@@ -1,6 +1,6 @@
 # BACKEND API FOR MOMEE.ID
 
-## How to Install
+## How to Install and running Development
 
 ```
 git clone -b dev https://github.com/Bangkit-Capstone-2024/Capstone-CC.git
@@ -8,13 +8,52 @@ git clone -b dev https://github.com/Bangkit-Capstone-2024/Capstone-CC.git
 cp .env.example .env
 npm install
 npm install -g nodemon
+npm install -g pm2
 
-npx prisma migrate dev -n users_schema
+npx prisma migrate deploy
 
 npm run dev
 
-npm start
 ```
+
+## How to Run on Production
+
+```
+npm install
+
+npm run build
+
+npm run start:pm2
+```
+
+<details><summary>Usefull Command</summary>
+
+
+### Check status Application
+
+```
+pm2 status
+```
+
+### Stop Application
+```
+pm2 stop dev-momee
+```
+### Restart Application
+```
+pm2 restart dev-momee
+```
+### Delete Application
+```
+pm2 delete dev-momee
+```
+### Running after Reboot
+```
+pm2 save
+pm2 startup
+```
+
+</details>
 
 > Should be changed at .env
 
@@ -25,7 +64,7 @@ npm start
 
 ```
 
-API & Services > Library > Google Cloud Storage > Enable
+Navigation Menu > API & Services > Library > Google Cloud Storage > Enable
 
 ```
 
