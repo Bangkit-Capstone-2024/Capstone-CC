@@ -48,4 +48,4 @@ jobs:
         SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         SERVER_USERNAME: ${{ secrets.DEV_USERNAME}}
       run: |
-        ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/dev-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart dev-momee'
+        ssh $SERVER_IP 'cd ~/dev-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart dev-momee'
