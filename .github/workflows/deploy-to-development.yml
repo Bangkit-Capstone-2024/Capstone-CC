@@ -22,9 +22,6 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    # - name: Prisma Migrate
-    #   run: npx prisma migrate deploy
-
     - name: Build project
       run: npm run build
 
@@ -48,21 +45,3 @@ jobs:
         SERVER_USERNAME: ${{ secrets.DEV_USERNAME}}
       run: |
         ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/dev-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart dev-momee'
-
-  # deploy-production:
-  #   if: github.ref == 'refs/heads/master'
-  #   needs: build
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v2
-
-  #   - name: Add SSH key
-  #     uses: webfactory/ssh-agent@v0.5.3
-  #     with:
-  #       ssh-private-key: ${{ secrets.PROD_SERVER_SSH_KEY }}
-
-  #   - name: Deploy to Production Server
-  #     run: |
-  #       ssh user@production_server 'cd /path/to/production && git pull && npm install && npm run build && pm2 restart production'
