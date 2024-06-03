@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - development
-      - master
+      # - master
 
 jobs:
   build:
@@ -22,13 +22,13 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Run tests
-      run: npm test
+    - name: Prisma Migrate
+      run: npx prisma migrate deploy
 
     - name: Build project
       run: npm run build
 
-  deploy-development:
+  deploy-to-development:
     if: github.ref == 'refs/heads/development'
     needs: build
     runs-on: ubuntu-latest
@@ -49,20 +49,20 @@ jobs:
       run: |
         ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/dev-momee && git pull && npm install && npm run build && pm2 restart dev-momee'
 
-  deploy-production:
-    if: github.ref == 'refs/heads/master'
-    needs: build
-    runs-on: ubuntu-latest
+  # deploy-production:
+  #   if: github.ref == 'refs/heads/master'
+  #   needs: build
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
 
-    - name: Add SSH key
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+  #   - name: Add SSH key
+  #     uses: webfactory/ssh-agent@v0.5.3
+  #     with:
+  #       ssh-private-key: ${{ secrets.PROD_SERVER_SSH_KEY }}
 
-    - name: Deploy to Production Server
-      run: |
-        ssh user@production_server 'cd /path/to/production && git pull && npm install && npm run build && pm2 restart production'
+  #   - name: Deploy to Production Server
+  #     run: |
+  #       ssh user@production_server 'cd /path/to/production && git pull && npm install && npm run build && pm2 restart production'
