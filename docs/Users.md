@@ -82,7 +82,7 @@ Rsponse Body Error :
 
 > Resend verification digunakan untuk user yang belum melakukan verifikasi email.
 
-Endpoint : GET /api/v1/users/resend-verification-email
+### Endpoint : ```GET /api/v1/users/resend-verification-email```
 
 Request Body :
 

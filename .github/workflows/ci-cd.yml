@@ -1,0 +1,68 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - development
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20' # Ubah ke versi Node.js yang Anda gunakan
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test
+
+    - name: Build project
+      run: npm run build
+
+  deploy-development:
+    if: github.ref == 'refs/heads/development'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.DEV_SERVER_SSH_KEY }}
+
+    - name: Deploy to Development Server
+      env:
+        SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+        SERVER_USERNAME: ${{ secrets.DEV_USERNAME}}
+      run: |
+        ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/dev-momee && git pull && npm install && npm run build && pm2 restart dev-momee'
+
+  deploy-production:
+    if: github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+
+    - name: Deploy to Production Server
+      run: |
+        ssh user@production_server 'cd /path/to/production && git pull && npm install && npm run build && pm2 restart production'
