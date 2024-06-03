@@ -6,6 +6,7 @@ import cors from "cors";
 env.config();
 
 const app = express();
+app.set('trust proxy', 1);
 // const PORT = process.env.PORT;
 
 // RATE LIMIT, THE PROCESS OF LIMITING THE NUMBER OF USER/CLIENT REQUSET ON CERTAIN RESOURCES
