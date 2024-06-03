@@ -22,8 +22,8 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Prisma Migrate
-      run: npx prisma migrate deploy
+    # - name: Prisma Migrate
+    #   run: npx prisma migrate deploy
 
     - name: Build project
       run: npm run build
@@ -47,7 +47,7 @@ jobs:
         SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         SERVER_USERNAME: ${{ secrets.DEV_USERNAME}}
       run: |
-        ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/dev-momee && git pull && npm install && npm run build && pm2 restart dev-momee'
+        ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/dev-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart dev-momee'
 
   # deploy-production:
   #   if: github.ref == 'refs/heads/master'
