@@ -57,7 +57,7 @@ model Category {
 
 model Product {
   id             Int       @id @default(autoincrement())
-  name_products  String
+  name_products  String    @db.VarChar(225)
   slug           String    @unique
   pictures       String    @db.VarChar(512)
   description    String
