@@ -3,6 +3,7 @@ import helmet from "helmet";
 import path from "path";
 import env from "dotenv";
 import cors from "cors";
+const cookieParser = require('cookie-parser');
 env.config();
 
 const app = express();
@@ -45,6 +46,8 @@ app.use(
   })
 );
 
+app.use(cookieParser());
+
 app.use(limiter);
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: false }));
@@ -55,6 +58,7 @@ import users_controllers from "./routes/UsersRoutes";
 import tenant_controllers from "./routes/tenantRoutes";
 import category_controllers from "./routes/categoryRoutes";
 import product_controllers from "./routes/productRoutes";
+
 
 // ROUTES
 
