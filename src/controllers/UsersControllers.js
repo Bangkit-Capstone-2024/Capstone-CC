@@ -93,6 +93,9 @@ export const UsersCreate = async (req, res) => {
 
     console.log(`Verification email sent to ${createUsers.email}`);
 
+    // Set authentication cookie
+    res.cookie('auth_token', token, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 });
+
     res.status(201).json({
       success: "true",
       message: "User created successfully. Please check your email to verify your account.",
@@ -104,6 +107,9 @@ export const UsersCreate = async (req, res) => {
     });
     //Logging Kirim email verifikasi
     console.log(`User ${createUsers.username} created successfully. Email verification sent to ${createUsers.email}`);
+
+    res.redirect('/homepage')
+    
   } catch (error) {
     res.status(500).json({
       success: "false",

@@ -1,12 +1,12 @@
 import express from "express";
 import multer from "multer";
 
-import { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, searchProducts } from "../controllers/productController";
+import { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, searchProducts, searchProductsByImage } from "../controllers/productController";
 // const upload = multer({ storage: multer.memoryStorage() });
 
 // Filter file untuk memastikan hanya gambar yang diizinkan
 const imageFilter = (req, file, cb) => {
-  if (!file.mimetype.match(/^image\/(jpeg|png|gif)$/)) {
+  if (!file.mimetype.match(/^image\/(jpeg|png|gif|webp)$/)) {
     console.error("Only image files are allowed!");
     return cb(new Error("Only image files are allowed!"), false);
   }
@@ -28,8 +28,11 @@ product_controllers.post("/products", upload.array("pictures", 8), createProduct
 product_controllers.patch("/products/:id", upload.array("pictures", 8), updateProduct); // Max 8 files
 product_controllers.get("/products", getAllProducts);
 product_controllers.get("/products/search", searchProducts);
+product_controllers.post("/products/search-by-image", upload.single('image'), searchProductsByImage); // Endpoint for product search by image
 product_controllers.get("/products/:id", getProductById);
 // product_controllers.patch("/products/:id", updateProduct);
 product_controllers.delete("/products/:id", deleteProduct);
+
+
 
 export default product_controllers;

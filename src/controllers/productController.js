@@ -7,6 +7,7 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import multer from "multer";
 import express from "express";
+const { classifyImage, getLabelsFromPrediction } = require('../models/mlModel');
 
 dotenv.config();
 
@@ -272,7 +273,7 @@ export const searchProducts = async (req, res) => {
       where: {
         name_products: {
           contains: name,
-          //   mode: "insensitive",
+          // mode: 'insensitive',
         },
       },
       include: {
@@ -295,6 +296,61 @@ export const searchProducts = async (req, res) => {
     });
   } catch (error) {
     console.error("Error searching for products", error);
+    res.status(500).json({
+      success: "false",
+      error: error.message,
+    });
+  }
+};
+
+export const searchProductsByImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: "false",
+        message: "Please upload an image",
+      });
+    }
+
+    const imageBuffer = req.file.buffer;
+    const predictions = await classifyImage(imageBuffer);
+    const label = getLabelsFromPrediction(predictions);
+
+    console.log('Label from prediction:', label); // Debugging line
+
+    const products = await ProductModels.findMany({
+      where: {
+        OR: [
+          {
+            name_products: {
+              contains: label,
+              // mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: label,
+              // mode: 'insensitive',
+            },
+          },
+        ],
+      },
+    });
+
+    if (products.length === 0) {
+      return res.status(404).json({
+        success: "false",
+        message: "No products found for the given image ${label}",
+      });
+    }
+
+    res.status(200).json({
+      success: "true",
+      message: "Products retrieved successfully",
+      data: products,
+    });
+  } catch (error) {
+    console.error('Error searching for product by image:', error);
     res.status(500).json({
       success: "false",
       error: error.message,
