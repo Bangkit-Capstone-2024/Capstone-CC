@@ -345,10 +345,18 @@ export const searchProductsByImage = async (req, res) => {
       });
     }
 
+    const formattedProducts = products.map(product => {
+      const pictures = JSON.parse(product.pictures);
+      return {
+        ...product,
+        pictures: pictures.length > 0 ? pictures[0] : null,
+      };
+    });
+
     res.status(200).json({
       success: "true",
       message: "Products retrieved successfully",
-      data: products,
+      data: formattedProducts,
     });
   } catch (error) {
     console.error('Error searching for product by image:', error);
