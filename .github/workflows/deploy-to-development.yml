@@ -1,10 +1,9 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline Development
 
 on:
   push:
     branches:
       - development
-      # - master
 
 jobs:
   build:
@@ -17,7 +16,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '20' # Ubah ke versi Node.js yang Anda gunakan
+        node-version: '20.14.0' # Ubah ke versi Node.js yang Anda gunakan
 
     - name: Install dependencies
       run: npm install
