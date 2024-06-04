@@ -201,6 +201,47 @@ Response Body Error :
 ```
 </details>
 
+<details><summary>Search Product by Image</summary>
+
+### Endpoint : ``` POST /api/v1/products/search-by-image```
+
+Response Body Success :
+
+```json
+{
+    "success": "true",
+    "message": "Products retrieved successfully",
+    "data": [
+        {
+            "id": 5,
+            "name_products": "Baby Bed",
+            "slug": "baby-bed-9cb5ef7d",
+            "pictures": "[\"https://storage.googleapis.com/dev-momee-products-images/Roby Stores Update/4aed844293c0f78b9ac80c350386562b-Delicate-Wooden-Style-Baby-Bed-Baby-Cot-Design-Simple-and-Elegant-Baby-Swing-and-Bassinet.webp\"]",
+            "description": "Example Description Product",
+            "price": 10500,
+            "stock": 2,
+            "is_available": true,
+            "created_at": "2024-06-04T04:03:56.758Z",
+            "updated_at": "2024-06-04T04:03:56.758Z",
+            "category_id": 4,
+            "tenant_id": 1
+        }
+    ]
+}
+```
+
+Response Body Error :
+
+```json
+
+{
+    "success": "false",
+    "message": "No products found for the given image"
+}
+```
+</details>
+
+
 <details><summary>Show Product by Id</summary>
 
 ### Endpoint : ```GET /api/v1/products/:id```
@@ -319,3 +360,5 @@ Response Body Success:
 1. Nama Product harus unik atau bisa sama?
 2. Jika nama product sama, bagaimana dengan slug-nya?
 </details>
+
+
