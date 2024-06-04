@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-name: CI/CD Pipeline to Production
-=======
 name: CI/CD Pipeline Production
->>>>>>> 48154188ac2aa21d2f7f0c0da5b43e9da8038573
 
 on:
   push:
