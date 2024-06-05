@@ -49,12 +49,14 @@ const generateUniqueSlug = (name) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name_products, description, price, stock, is_available, category_id, tenant_id } = req.body;
+    const { name_products, description, price, stock, is_available, category_id } = req.body;
+
+    const user_id = req.user.id;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
-    const tenant = await TenantModels.findUnique({
+    const tenant = await TenantModels.findFirst({
       where: {
-        id: parseInt(tenant_id),
+        user_id: parseInt(user_id),
       },
     });
 
@@ -88,7 +90,7 @@ export const createProduct = async (req, res) => {
         stock: parseInt(stock),
         is_available: is_available === "true" ? true : false,
         category_id: parseInt(category_id),
-        tenant_id: parseInt(tenant_id),
+        tenant_id: tenant.id,
       },
     });
 
@@ -111,12 +113,14 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name_products, description, price, stock, is_available, category_id, tenant_id } = req.body;
+    const { name_products, description, price, stock, is_available, category_id } = req.body;
+
+    const user_id = req.user.id;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
-    const tenant = await TenantModels.findUnique({
+    const tenant = await TenantModels.findFirst({
       where: {
-        id: parseInt(tenant_id),
+        user_id: parseInt(user_id),
       },
     });
 
@@ -327,12 +331,12 @@ export const searchProductsByImage = async (req, res) => {
               // mode: 'insensitive',
             },
           },
-          {
-            description: {
-              contains: label,
-              // mode: 'insensitive',
-            },
-          },
+          // {
+          //   description: {
+          //     contains: label,
+          //     // mode: 'insensitive',
+          //   },
+          // },
         ],
       },
     });

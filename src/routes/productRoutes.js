@@ -26,12 +26,12 @@ const product_controllers = express.Router();
 
 // product_controllers.post("/products", createProduct);
 // product_controllers.post("/products", upload.single("pictures"), createProduct);
-product_controllers.post("/products", upload.array("pictures", 8), authCheck, createProduct); // Max 8 files
+product_controllers.post("/products",  authCheck, upload.array("pictures", 8), createProduct); // Max 8 files
 product_controllers.patch("/products/:id", upload.array("pictures", 8), authCheck, updateProduct); // Max 8 files
 product_controllers.get("/products", getAllProducts);
 product_controllers.get("/products/search", searchProducts);
 product_controllers.post("/products/search-by-image", upload.single('image'), searchProductsByImage); // Endpoint for product search by image
-product_controllers.get("/products/:id", getProductById);
+product_controllers.get("/products/:id", authCheck, getProductById);
 // product_controllers.patch("/products/:id", updateProduct);
 product_controllers.delete("/products/:id", authCheck, deleteProduct);
 
