@@ -79,3 +79,32 @@ Response Body Error :
 }
 ```
 </details>
+
+<details><summary>Update Category by Id</summary>
+
+### Endpoint : ```PATCH /api/v1/categories/:id```
+
+Request Body :
+
+```json
+{
+  "name_categories": "new_category_name_update"
+}
+
+
+```
+Response Body Success :
+
+```json
+
+{
+    "success": "true",
+    "message": "Category updated successfully",
+    "data": {
+        "id": 6,
+        "name_categories": "Breast Pump Updated",
+        "created_at": "2024-06-04T12:31:02.334Z"
+    }
+}
+```
+</details>

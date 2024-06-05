@@ -77,7 +77,6 @@ export const createProduct = async (req, res) => {
       const uploadPromises = req.files.map((file) => uploadImageToGCS(file, tenant.name_tenants));
       pictureUrls = await Promise.all(uploadPromises);
     }
-    console.log (pictureUrls);
 
     const product = await ProductModels.create({
       data: {
@@ -136,7 +135,6 @@ export const updateProduct = async (req, res) => {
       const newPictureUrls = await Promise.all(uploadPromises);
       pictureUrls = [...pictureUrls, ...newPictureUrls];
     }
-
 
     const product = await ProductModels.update({
       where: {
@@ -329,12 +327,12 @@ export const searchProductsByImage = async (req, res) => {
               // mode: 'insensitive',
             },
           },
-          // {
-          //   description: {
-          //     contains: label,
-          //     // mode: 'insensitive',
-          //   },
-          // },
+          {
+            description: {
+              contains: label,
+              // mode: 'insensitive',
+            },
+          },
         ],
       },
     });
