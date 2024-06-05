@@ -59,6 +59,19 @@ export const deleteCategory = async (req, res) => {
       });
     }
 
+    const productsInCategory = await CategoryModels.findMany({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    if (productsInCategory.length > 0) {
+      return res.status(400).json({
+        success: "false",
+        message: "Category contains products and cannot be deleted!",
+      });
+    }
+
     await prisma.category.delete({
       where: {
         id: parseInt(id),
@@ -69,6 +82,7 @@ export const deleteCategory = async (req, res) => {
       success: "true",
       message: "Category deleted successfully",
     });
+    
   } catch (error) {
     res.status(500).json({
       success: "false",

@@ -6,11 +6,17 @@
 
 > Setiap User hanya diijinkan untuk membuat 1 tenant
 
+Request Headers :
+
+```
+Key: Authorization
+Value: Baerer <token>
+```
+
 Request Body :
 
 ```json
 {
-  "user_id": 1,
   "name_tenants": "Tenant Name",
   "address_tenants": "Tenant Address"
 }
@@ -55,6 +61,13 @@ Respons Body Error (Jika user sudah mempunyai tenant):
 
 ### Endpoint : ```GET /api/v1/tenants```
 
+Request Headers :
+
+```
+Key: Authorization
+Value: Baerer <token>
+```
+
 Respons Body Success :
 
 ```json
@@ -76,6 +89,13 @@ Respons Body Success :
 <details><summary>Show Tenants by Id</summary>
 
 ### Endpoint : ```GET /api/v1/tenants/:id```
+
+Request Headers :
+
+```
+Key: Authorization
+Value: Baerer <token>
+```
 
 Respons Body Success :
 
@@ -147,6 +167,13 @@ Respons Body Error :
 
 ### Endpoint : ```PATCH /api/v1/tenants/:id```
 
+Request Headers :
+
+```
+Key: Authorization
+Value: Baerer <token>
+```
+
 Request Body :
 
 ```json
@@ -156,7 +183,7 @@ Request Body :
 }
 ```
 
-Response Budy Success
+Response Body Success
 
 ```json
 {
@@ -172,11 +199,29 @@ Response Budy Success
 }
 ```
 
+Response Body Error :
+
+```json
+{
+    "success": "false",
+    "message": "Login first to get tokens"
+}
+```
+
 </details>
 
 <details><summary>Delete Tenant by Id</summary>
 
+> Delete tenant hanya bisa dilakukan ketika sudah tidak memiliki product dan kategori
+
 ### Endpoint : ```DELETE /api/v1/tenants/:id```
+
+Request Headers :
+
+```
+Key: Authorization
+Value: Baerer <token>
+```
 
 Response Body Success
 

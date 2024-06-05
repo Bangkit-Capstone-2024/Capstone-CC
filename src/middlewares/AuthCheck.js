@@ -10,7 +10,7 @@ export const authCheck = async (req, res, next) => {
     if (!token) {
       res.status(401).json({
         success: "false",
-        message: "Login first to get tokens ?",
+        message: "Login first to get tokens",
       });
       return;
     }
@@ -22,7 +22,7 @@ export const authCheck = async (req, res, next) => {
     if (!verify) {
       res.status(401).json({
         success: "false",
-        message: "Invalid Token",
+        message: "",
       });
       return;
     }
@@ -35,11 +35,13 @@ export const authCheck = async (req, res, next) => {
       return;
     }
 
+    req.user = verify;
+
     next();
   } catch (error) {
     res.status(401).json({
       success: "false",
-      message: "Login first to get tokens ?",
+      message: "Invalid Token",
     });
   }
 };

@@ -7,7 +7,8 @@ const prisma = new PrismaClient();
 // Membuat tenant baru
 export const createTenant = async (req, res) => {
   try {
-    const { user_id, name_tenants, address_tenants } = req.body;
+    const { name_tenants, address_tenants } = req.body;
+    const user_id = req.user.id;
 
     // Periksa apakah user_id ada di database
     const user = await UsersModels.findUnique({
@@ -40,9 +41,9 @@ export const createTenant = async (req, res) => {
     // Buat tenant baru
     const tenant = await TenantModels.create({
       data: {
-        user_id: parseInt(user_id),
-        name_tenants: name_tenants,
-        address_tenants: address_tenants,
+        user_id,
+        name_tenants,
+        address_tenants,
       },
     });
 
@@ -50,7 +51,7 @@ export const createTenant = async (req, res) => {
       success: "true",
       message: "Tenant created successfully",
       data: tenant,
-      tenant,
+      // tenant,
     });
   } catch (error) {
     res.status(500).json({
@@ -170,8 +171,8 @@ export const updateTenant = async (req, res) => {
         id: parseInt(id),
       },
       data: {
-        name_tenants: name_tenants,
-        address_tenants: address_tenants,
+        name_tenants,
+        address_tenants,
       },
     });
 

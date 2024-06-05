@@ -78,6 +78,15 @@ Response Body Error :
   "message": "Category not found or already deleted!"
 }
 ```
+
+Response Body Error jika masih ada product:
+
+```json
+{
+    "success": "false",
+    "message": "Category contains products and cannot be deleted!"
+}
+```
 </details>
 
 <details><summary>Update Category by Id</summary>
