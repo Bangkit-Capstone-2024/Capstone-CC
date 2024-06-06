@@ -23,6 +23,7 @@ model Users {
   updated_at        DateTime @default(now())
   created_at        DateTime @default(now())
   isVerified        Boolean  @default(false)
+  isDeleted         Boolean  @default(false)
 
   tenants           Tenants[]
 }

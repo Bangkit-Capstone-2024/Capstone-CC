@@ -41,10 +41,17 @@ export const UsersCreate = async (req, res) => {
     });
 
     if (checkUniqueEmail) {
-      return res.status(401).json({
-        success: "false",
-        message: "Email already exists",
-      });
+      if (checkUniqueEmail.isVerified) {
+        return res.status(401).json({
+          success: "false",
+          message: "Email is already verified",
+        });
+      } else {
+        return res.status(401).json({
+          success: "false",
+          message: "Email already exists",
+        });
+      }
     }
 
     const createUsers = await UsersModels.create({
@@ -108,7 +115,7 @@ export const UsersCreate = async (req, res) => {
     //Logging Kirim email verifikasi
     console.log(`User ${createUsers.username} created successfully. Email verification sent to ${createUsers.email}`);
 
-    res.redirect('/homepage')
+    // res.redirect('/homepage')
     
   } catch (error) {
     res.status(500).json({
@@ -142,6 +149,13 @@ export const UsersVerifyEmail = async (req, res) => {
       });
     }
 
+    if (decoded.exp < Date.now() / 1000) {
+      return res.status(401).json({
+        success: "false",
+        message: "Token expired",
+      });
+    }
+
     const user = await UsersModels.findUnique({
       where: {
         id: decoded.id,
@@ -152,6 +166,13 @@ export const UsersVerifyEmail = async (req, res) => {
       return res.status(400).json({
         success: "false",
         message: "Invalid token or user does not exist",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(200).json({
+        success: "true",
+        message: "Email is already verified",
       });
     }
 
