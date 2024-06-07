@@ -1,10 +1,12 @@
 # Tenants API Spec
 
+> Notes: Pada Tenants Model, `address_tenants` cukup ditulis Nama Kota, akan secara otomatis menyesuaikan berdasarkan API Google Maps
+
 <details><summary>Create Tenant</summary>
 
 ### Endpoint : ```POST /api/v1/tenants```
 
-> Setiap User hanya diijinkan untuk membuat 1 tenant
+> User dapat membuat lebih dari 1 tenant
 
 Request Headers :
 

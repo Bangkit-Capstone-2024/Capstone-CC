@@ -91,6 +91,7 @@ export const createProduct = async (req, res) => {
         is_available: is_available === "true" ? true : false,
         category_id: parseInt(category_id),
         tenant_id: tenant.id,
+        address_tenants: tenant.address_tenants, // Include tenant's address
       },
     });
 
@@ -153,6 +154,7 @@ export const updateProduct = async (req, res) => {
         stock: parseInt(stock),
         is_available: is_available === "true" ? true : false,
         category_id: parseInt(category_id),
+        address_tenants: tenant.address_tenants, // Include tenant's address
       },
     });
 

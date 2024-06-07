@@ -20,8 +20,8 @@ model Users {
   password          String
   resetPasswordToken String?
   resetPasswordExpires DateTime?
-  updated_at        DateTime @default(now())
   created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
   isVerified        Boolean  @default(false)
   isDeleted         Boolean  @default(false)
 
@@ -39,7 +39,10 @@ model Tenants {
   user_id         Int
   name_tenants    String
   address_tenants String
+  location_lat    Float
+  location_lng    Float
   created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   user            Users     @relation(fields: [user_id], references: [id])
   products        Product[]
@@ -69,6 +72,7 @@ model Product {
   updated_at     DateTime  @updatedAt
   category_id    Int
   tenant_id      Int
+  address_tenants String
 
   category       Category  @relation(fields: [category_id], references: [id])
   tenant         Tenants    @relation(fields: [tenant_id], references: [id])

@@ -46,6 +46,70 @@ export const UsersCreate = async (req, res) => {
           success: "false",
           message: "Email is already verified",
         });
+      } else if (checkUniqueEmail.isDeleted) {
+        // Reactivate the soft-deleted account
+        const updatedUser = await prisma.user.update({
+          where: {
+            email: email,
+          },
+          data: {
+            isDeleted: false,
+            isVerified: false, // Ensure the user needs to verify their email again
+            password: bcryptjs.hashSync(password, 10), // Update password
+            username: username, // Update username if needed
+          },
+        });
+
+        // CREATE TOKEN
+        const token = jwt.sign(
+          {
+            app_id: process.env.APP_ID,
+            id: updatedUser.id,
+            email: updatedUser.email,
+            username: updatedUser.username,
+          },
+          process.env.API_SECRET,
+          {
+            expiresIn: "1d",
+          }
+        );
+
+        const hashToken = CryptoJS.AES.encrypt(token, process.env.API_SECRET).toString();
+
+        // Generate verification link
+        const verificationLink = `${process.env.CLIENT_URL}/api/v1/users/verify-email/${updatedUser.id}/${encodeURIComponent(hashToken)}`;
+
+        // Read email template
+        const templatePath = path.join(__dirname, "../emailTemplates", "verificationEmail.html");
+        const template = fs.readFileSync(templatePath, "utf8");
+
+        // Replace placeholder with actual link
+        let htmlToSend = template.replace(/{{username}}/g, username);
+        htmlToSend = htmlToSend.replace(/{{email}}/g, email);
+        htmlToSend = htmlToSend.replace(/{{verificationLink}}/g, verificationLink);
+
+        // Send verification email
+        await transporter.sendMail({
+          from: process.env.ZOHO_EMAIL,
+          to: updatedUser.email,
+          subject: "Email Verification for Your Momee.id Account",
+          html: htmlToSend,
+        });
+
+        console.log(`Verification email sent to ${updatedUser.email}`);
+
+        // Set authentication cookie
+        res.cookie('auth_token', token, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 });
+
+        return res.status(200).json({
+          success: "true",
+          message: "Account reactivated successfully. Please check your email to verify your account.",
+          data: {
+            id: updatedUser.id,
+            email: updatedUser.email,
+            username: updatedUser.username,
+          },
+        });
       } else {
         return res.status(401).json({
           success: "false",
@@ -53,6 +117,20 @@ export const UsersCreate = async (req, res) => {
         });
       }
     }
+    
+    // if (checkUniqueEmail) {
+    //   if (checkUniqueEmail.isVerified) {
+    //     return res.status(401).json({
+    //       success: "false",
+    //       message: "Email is already verified",
+    //     });
+    //   } else {
+    //     return res.status(401).json({
+    //       success: "false",
+    //       message: "Email already exists",
+    //     });
+    //   }
+    // }
 
     const createUsers = await UsersModels.create({
       data: {
@@ -193,7 +271,6 @@ export const UsersVerifyEmail = async (req, res) => {
     // Replace placeholder with actual link
     let htmlToSend = template.replace(/{{username}}/g, user.username);
     htmlToSend = htmlToSend.replace(/{{email}}/g, user.email);
-    // htmlToSend = htmlToSend.replace(/{{verificationLink}}/g, verificationLink);
 
     // Send notification email
     await transporter.sendMail({
@@ -421,22 +498,6 @@ export const UsersUpdate = async (req, res) => {
       });
     }
 
-    // CHECK UNIQUE USERNAME (if username is being changed)
-    // if (data.username && data.username !== checkUniqueId.username) {
-    //   const checkUniqueUsername = await UsersModels.findFirst({
-    //     where: {
-    //       username: data.username,
-    //     },
-    //   });
-
-    //   if (checkUniqueUsername) {
-    //     return res.status(401).json({
-    //       success: "false",
-    //       message: "Username already exists",
-    //     });
-    //   }
-    // }
-
     let updatedData = {};
 
     if (data.username) {
@@ -534,11 +595,6 @@ export const UsersDelete = async (req, res) => {
     res.status(200).json({
       success: "true",
       message: "Successfully delete users!",
-      //   data: {
-      //     id: parseInt(id),
-      //     email: data.email,
-      //     username: data.username,
-      //   },
     });
     console.log(`User ${checkId.username} deleted successfully`);
   } catch (error) {
@@ -746,7 +802,7 @@ export const resetPassword = async (req, res) => {
 
     res.status(200).json({
       success: "true",
-      message: "Password has been reset and a confirmation email has been sent.",
+      message: "Password has been res`et and a confirmation email has been sent.",
     });
   } catch (error) {
     res.status(500).json({
