@@ -1,6 +1,7 @@
 # Product API Spec
 
-> Pada Products Model ini `address_tenants` akan mereffer dari Alamat Tenant yang sudah di input sebelumnya
+> Pada Products Model `address_tenants` akan mereffer dari Alamat Tenant yang sudah di input sebelumnya  
+> Value `is_available` akan otomatis berubah menjadi `false` ketika stock barang menjadi 0
 
 <details><summary>Create Product</summary>
 

@@ -20,7 +20,7 @@ users_controllers.post("/users/create", UsersCreate);
 users_controllers.post("/users/login", LimitLogin, UsersLogin);
 //users_controllers.post("/users/logout", authCheck, UsersLogout);
 users_controllers.post("/users/read", authCheck, UsersRead);
-users_controllers.patch("/users/update/:id", authCheck, UsersUpdate);
+users_controllers.patch("/users/update/:id", authCheck, CheckBlacklist, UsersUpdate);
 users_controllers.delete("/users/delete/:id", authCheck, CheckBlacklist, UsersDelete);
 // users_controllers.get("/users/auth", UsersAuth);
 

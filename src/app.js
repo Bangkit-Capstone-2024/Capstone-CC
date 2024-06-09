@@ -58,6 +58,7 @@ import users_controllers from "./routes/UsersRoutes";
 import tenant_controllers from "./routes/tenantRoutes";
 import category_controllers from "./routes/categoryRoutes";
 import product_controllers from "./routes/productRoutes";
+import booking_controllers from "./routes/bookingRoutes";
 
 
 // ROUTES
@@ -66,5 +67,6 @@ app.use("/api/v1", users_controllers);
 app.use("/api/v1", tenant_controllers);
 app.use("/api/v1", category_controllers);
 app.use("/api/v1", product_controllers);
+app.use("/api/v1", booking_controllers);
 
 export { app };

@@ -26,6 +26,7 @@ model Users {
   isDeleted         Boolean  @default(false)
 
   tenants           Tenants[]
+  bookings          Booking[] 
 }
 
 model TokenBlacklist {
@@ -76,8 +77,22 @@ model Product {
 
   category       Category  @relation(fields: [category_id], references: [id])
   tenant         Tenants    @relation(fields: [tenant_id], references: [id])
+  bookings       Booking[]
+
 
   @@index([category_id])
   @@index([tenant_id])
 }
 
+model Booking {
+  id          Int      @id @default(autoincrement())
+  startDate   DateTime
+  endDate     DateTime
+  totalPrice  Float
+  user_id      Int
+  product_id   Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  user        Users     @relation(fields: [user_id], references: [id])
+  product     Product  @relation(fields: [product_id], references: [id])
+}

@@ -605,70 +605,70 @@ export const UsersDelete = async (req, res) => {
   }
 };
 
-// USER Authorization
+// // USER Authorization
 
-export const UsersAuth = async (req, res) => {
-  try {
-    const token = await req.headers.authorization;
+// export const UsersAuth = async (req, res) => {
+//   try {
+//     const token = await req.headers.authorization;
 
-    if (!token) {
-      res.status(401).json({
-        success: "false",
-        message: "Login first to get tokens ?",
-      });
-      return res.status(401).json({
-        success: "false",
-        message: "Token not found",
-      });
-    }
+//     if (!token) {
+//       res.status(401).json({
+//         success: "false",
+//         message: "Login first to get tokens ?",
+//       });
+//       return res.status(401).json({
+//         success: "false",
+//         message: "Token not found",
+//       });
+//     }
 
-    const baerer = await token.split(" ")[1];
-    const decToken = await CryptoJS.AES.decrypt(baerer, process.env.API_SECRET).toString(CryptoJS.enc.Utf8);
+//     const baerer = await token.split(" ")[1];
+//     const decToken = await CryptoJS.AES.decrypt(baerer, process.env.API_SECRET).toString(CryptoJS.enc.Utf8);
 
-    const verify = await jwt.verify(decToken, process.env.API_SECRET);
+//     const verify = await jwt.verify(decToken, process.env.API_SECRET);
 
-    if (!verify) {
-      res.status(401).json({
-        success: "false",
-        message: "Login first to get tokens ?",
-      });
-      return res.status(401).json({
-        success: "false",
-        error: "Error token",
-      });
-    }
+//     if (!verify) {
+//       res.status(401).json({
+//         success: "false",
+//         message: "Login first to get tokens ?",
+//       });
+//       return res.status(401).json({
+//         success: "false",
+//         error: "Error token",
+//       });
+//     }
 
-    if (verify.exp < Date.now() / 1000) {
-      res.status(401).json({
-        success: "false",
-        message: "Token expired",
-      });
-      return res.status(401).json({
-        success: "false",
-        message: "Token expired",
-      });
-    }
+//     if (verify.exp < Date.now() / 1000) {
+//       res.status(401).json({
+//         success: "false",
+//         message: "Token expired",
+//       });
+//       return res.status(401).json({
+//         success: "false",
+//         message: "Token expired",
+//       });
+//     }
 
-    const getUserData = await UsersModels.findUnique({
-      where: {
-        id: parseInt(verify.id),
-      },
-    });
+//     const getUserData = await UsersModels.findUnique({
+//       where: {
+//         id: parseInt(verify.id),
+//       },
+//     });
 
-    const removePass = delete getUserData.password;
+//     const removePass = delete getUserData.password;
 
-    return res.status(200).json({
-      success: "true",
-      message: "User data",
-      query: getUserData,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: "false",
-      message: error.message,
-    });
-  }
-};
+//     return res.status(200).json({
+//       success: "true",
+//       message: "User data",
+//       query: getUserData,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: "false",
+//       message: error.message,
+//     });
+//   }
+// };
 
 // USERS RESET/FORGOT PASSWORD
 
