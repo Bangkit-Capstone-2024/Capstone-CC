@@ -305,14 +305,14 @@ Response body error :
 <details><summary>Logout User API</summary>
 
 
-### Endpoint : ```DELETE /api/v1/users/delete/{id}```
+### Endpoint : ```POST /api/v1/users/logout```
 
 Reponse body Success :
 
 ```json
 {
-  "success": "true",
-  "message": "Successfully delete users!"
+    "success": "true",
+    "message": "Logout successfully"
 }
 ```
 
