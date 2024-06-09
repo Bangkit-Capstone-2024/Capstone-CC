@@ -68,7 +68,7 @@ Response Body Error :
 
 ```
 
-<details>
+</details>
 
 <details><summary>Get Booking by User</summary>
 
@@ -125,7 +125,7 @@ Response Body Success :
 }
 ```
 
-<details>
+</details>
 
 
 <details><summary>Get Booking by Id</summary>
@@ -190,13 +190,13 @@ Response Body Error :
 }
 ```
 
-<details>
+</details>
 
 <details><summary>Delete/Cancel Booking</summary>
 
 > 
 
-### Endpoint : ```GET /api/v1/bookings```
+### Endpoint : ```DELETE /api/v1/bookings```
 
 Request Headers :
 
@@ -224,4 +224,4 @@ Response Body Error :
 }
 ```
 
-<details>
+</details>
