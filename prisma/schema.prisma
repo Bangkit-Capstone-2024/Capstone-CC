@@ -24,6 +24,12 @@ model Users {
   updated_at        DateTime @updatedAt
   isVerified        Boolean  @default(false)
   isDeleted         Boolean  @default(false)
+  avatar            String? 
+  gender            String?
+  address           String?
+  address_lat       Float?   
+  address_lng       Float?
+  phone             String?
 
   tenants           Tenants[]
   bookings          Booking[] 

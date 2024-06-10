@@ -10,9 +10,9 @@ import { text } from "express";
 import nodemailer from "nodemailer";
 const fs = require("fs");
 const path = require("path");
-// const TokensBlacklistModels = require("../models/Models").tokenblacklist;
+import { Storage } from "@google-cloud/storage";
+import axios from "axios";
 
-// import { transporter } from "../middlewares/NodeMailerConfig";
 
 env.config();
 
@@ -27,6 +27,37 @@ const transporter = nodemailer.createTransport({
     pass: process.env.ZOHO_PASSWORD,
   },
 });
+
+// GOOGLE CLOUD STORAGE TO UPLOAD AVATAR
+
+const storage = new Storage();
+
+const bucketName = process.env.GCS_BUCKET_NAME;
+
+const uploadImageToGCS = async (file, folderName) => {
+  const bucket = storage.bucket(bucketName);
+  const fileName = `${folderName}/${crypto.randomBytes(16).toString("hex")}-${file.originalname}`;
+  const blob = bucket.file(fileName);
+
+  return new Promise((resolve, reject) => {
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+      contentType: file.mimetype,
+    });
+
+    blobStream.on("finish", () => {
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+      resolve(publicUrl);
+    });
+
+    blobStream.on("error", (err) => {
+      reject(err);
+    });
+
+    blobStream.end(file.buffer);
+  });
+};
+
 // CREATE USERS
 
 export const UsersCreate = async (req, res) => {
@@ -457,6 +488,15 @@ export const UsersRead = async (req, res) => {
       take: parseInt(limit),
       orderBy: { id: "desc" },
       where: filter,
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        avatar: true,
+        phone: true,
+        gender: true,
+        address: true,
+      },
     });
 
     const conn = await UsersModels.count();
@@ -477,13 +517,33 @@ export const UsersRead = async (req, res) => {
   }
 };
 
+// Fetch location data from Google Maps API
+
+const getFormattedAddress = async (address) => {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const response = await axios.get(
+    `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
+  );
+
+  if (response.data.status !== 'OK') {
+    throw new Error('Error fetching address from Google Maps API');
+  }
+
+  const result = response.data.results[0];
+  return {
+    formattedAddress: result.formatted_address,
+    lat: result.geometry.location.lat,
+    lng: result.geometry.location.lng,
+  };
+};
+
 // USERS UPDATE
 
 export const UsersUpdate = async (req, res) => {
   try {
     const data = req.body;
     const { id } = req.params;
-
+    
     // CHECK UNIQUE ID
     const checkUniqueId = await UsersModels.findUnique({
       where: {
@@ -509,6 +569,27 @@ export const UsersUpdate = async (req, res) => {
       updatedData.password = hashedPassword;
     }
 
+    if (req.file) {
+      const folderName = `avatars/${checkUniqueId.username}`;
+      const avatarUrl = await uploadImageToGCS(req.file, folderName);
+      updatedData.avatar = avatarUrl;
+    }
+
+    if (data.phone) {
+      updatedData.phone = data.phone;
+    }
+
+    if (data.gender) {
+      updatedData.gender = data.gender;
+    }
+
+    if (data.address) {
+      const addressData = await getFormattedAddress(data.address);
+      updatedData.address = addressData.formattedAddress;
+      updatedData.address_lat = addressData.lat;
+      updatedData.address_lng = addressData.lng;
+    }
+
     const result = await UsersModels.update({
       where: {
         id: parseInt(id),
@@ -523,6 +604,12 @@ export const UsersUpdate = async (req, res) => {
         id: result.id,
         email: result.email,
         username: result.username,
+        avatar: result.avatar,
+        phone: result.phone,
+        gender: result.gender,
+        address: result.address,
+        address_lat: result.address_lat,
+        address_lng: result.address_lng,
       },
     });
   } catch (error) {
@@ -604,71 +691,6 @@ export const UsersDelete = async (req, res) => {
     });
   }
 };
-
-// // USER Authorization
-
-// export const UsersAuth = async (req, res) => {
-//   try {
-//     const token = await req.headers.authorization;
-
-//     if (!token) {
-//       res.status(401).json({
-//         success: "false",
-//         message: "Login first to get tokens ?",
-//       });
-//       return res.status(401).json({
-//         success: "false",
-//         message: "Token not found",
-//       });
-//     }
-
-//     const baerer = await token.split(" ")[1];
-//     const decToken = await CryptoJS.AES.decrypt(baerer, process.env.API_SECRET).toString(CryptoJS.enc.Utf8);
-
-//     const verify = await jwt.verify(decToken, process.env.API_SECRET);
-
-//     if (!verify) {
-//       res.status(401).json({
-//         success: "false",
-//         message: "Login first to get tokens ?",
-//       });
-//       return res.status(401).json({
-//         success: "false",
-//         error: "Error token",
-//       });
-//     }
-
-//     if (verify.exp < Date.now() / 1000) {
-//       res.status(401).json({
-//         success: "false",
-//         message: "Token expired",
-//       });
-//       return res.status(401).json({
-//         success: "false",
-//         message: "Token expired",
-//       });
-//     }
-
-//     const getUserData = await UsersModels.findUnique({
-//       where: {
-//         id: parseInt(verify.id),
-//       },
-//     });
-
-//     const removePass = delete getUserData.password;
-
-//     return res.status(200).json({
-//       success: "true",
-//       message: "User data",
-//       query: getUserData,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: "false",
-//       message: error.message,
-//     });
-//   }
-// };
 
 // USERS RESET/FORGOT PASSWORD
 
