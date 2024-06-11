@@ -178,12 +178,25 @@ Response body error :
 1. User tidak diijinkan melakukan perubahan pada email.
 2. Username tidak boleh sama dengan existing
 
-Request Body :
+Request Headers :
+
+```
+Key: Authorization
+Value: Baerer <token>
+```
+
+Request Body menggunakan form-data:
+
+> semua key berupa `Text` kecuali avatar menggunakan `File`
 
 ```json
 {
   "username": "Roby Update new",
-  "password": "password1232"
+  "password": "password1232",
+  "avatar": "url",
+  "gender":"male/female",
+  "phone":"0812345678",
+  "address":"jakarta"
 }
 ```
 
