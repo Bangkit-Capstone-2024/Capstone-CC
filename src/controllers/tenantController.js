@@ -2,8 +2,61 @@ const { PrismaClient } = require("@prisma/client");
 import { TenantModels } from "../models/Models";
 import { UsersModels } from "../models/Models";
 import axios from "axios";
+import { Storage } from "@google-cloud/storage";
+import crypto from "crypto";
+import logger from "../middlewares/logger";
 
 const prisma = new PrismaClient();
+
+// UPLOAD IMAGES TO GCS
+
+const storage = new Storage();
+const bucketName = process.env.GCS_BUCKET_NAME;
+
+const uploadImageToGCS = async (file, folderName) => {
+  const bucket = storage.bucket(bucketName);
+  const fileName = `${folderName}/${crypto.randomBytes(16).toString("hex")}-${file.originalname}`;
+  const blob = bucket.file(fileName);
+
+  return new Promise((resolve, reject) => {
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+      contentType: file.mimetype,
+    });
+
+    blobStream.on("finish", () => {
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+      resolve(publicUrl);
+    });
+
+    blobStream.on("error", (err) => {
+      reject(err);
+    });
+
+    blobStream.end(file.buffer);
+  });
+};
+
+// Delete folder from GCS
+const deleteFolderFromGCS = async (folderName) => {
+  try {
+    const [files] = await storage.bucket(bucketName).getFiles({
+      prefix: folderName,
+    });
+
+    if (files.length === 0) {
+      logger.info(`No files found in folder ${folderName} to delete`);
+      return;
+    }
+
+    const deletePromises = files.map(file => file.delete());
+    await Promise.all(deletePromises);
+    logger.info(`Deleted folder ${folderName} from GCS`);
+  } catch (error) {
+    logger.error(`Error deleting folder from GCS: ${error.message}`);
+    throw new Error('Failed to delete folder from GCS');
+  }
+};
 
 // Membuat tenant baru
 export const createTenant = async (req, res) => {
@@ -61,11 +114,18 @@ export const createTenant = async (req, res) => {
     const formattedAddress = locationData.formatted_address;
     const { lat, lng } = locationData.geometry.location;
 
+    let imageUrl = null;
+    if (req.file) {
+      const folderName = `tenants/${name_tenants}/images_tenant`;
+      imageUrl = await uploadImageToGCS(req.file, folderName);
+    }
+
     // Buat tenant baru
     const tenant = await TenantModels.create({
       data: {
         user_id,
         name_tenants,
+        image: imageUrl,
         address_tenants: formattedAddress, // Store the formatted address
         location_lat: lat, // Add latitude field
         location_lng: lng, // Add longitude field      
@@ -183,16 +243,24 @@ export const updateTenant = async (req, res) => {
     const formattedAddress = locationData.formatted_address;
     const { lat, lng } = locationData.geometry.location;
 
+    let updatedData = {
+      name_tenants,
+      address_tenants: formattedAddress,
+      location_lat: lat,
+      location_lng: lng,
+    };
+
+    if (req.file) {
+      const folderName = `tenants/${name_tenants}/images_tenant`;
+      const imageUrl = await uploadImageToGCS(req.file, folderName);
+      updatedData.image = imageUrl;
+    }
+
     const tenant = await TenantModels.update({
       where: {
         id: parseInt(id),
       },
-      data: {
-        name_tenants,
-        address_tenants: formattedAddress, // Store the formatted address
-        location_lat: lat, // Add latitude field
-        location_lng: lng, // Add longitude field  
-      },
+      data: updatedData,
     });
 
     res.status(200).json({
@@ -225,6 +293,9 @@ export const deleteTenant = async (req, res) => {
         message: "Tenant not found or already deleted!",
       });
     }
+
+    // Delete tenant's image folder in GCS
+    await deleteFolderFromGCS(`tenants/${tenant.name_tenants}/images_tenant`);
 
     await TenantModels.delete({
       where: {

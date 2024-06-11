@@ -45,6 +45,7 @@ model Tenants {
   id              Int      @id @default(autoincrement())
   user_id         Int
   name_tenants    String
+  image           String?
   address_tenants String
   location_lat    Float
   location_lng    Float
