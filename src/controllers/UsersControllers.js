@@ -570,7 +570,7 @@ export const UsersUpdate = async (req, res) => {
     }
 
     if (req.file) {
-      const folderName = `avatars/${checkUniqueId.username}`;
+      const folderName = `users/${checkUniqueId.username}/avatars`;
       const avatarUrl = await uploadImageToGCS(req.file, folderName);
       updatedData.avatar = avatarUrl;
     }
