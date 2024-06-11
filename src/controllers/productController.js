@@ -76,7 +76,7 @@ export const createProduct = async (req, res) => {
     //   pictureUrl = await uploadImageToGCS(req.file, tenant.name_tenants);
     // }
     if (req.files && req.files.length > 0) {
-      const folderName = `tenants/${tenant.name_tenants};`
+      const folderName = `tenants/${tenant.name_tenants}/products_images;`
       const uploadPromises = req.files.map((file) => uploadImageToGCS(file, folderName));
       pictureUrls = await Promise.all(uploadPromises);
     }
@@ -137,7 +137,7 @@ export const updateProduct = async (req, res) => {
 
     let pictureUrls = [];
     if (req.files && req.files.length > 0) {
-      const folderName = `tenants/${tenant.name_tenants};`
+      const folderName = `tenants/${tenant.name_tenants}/products_images;`
       const uploadPromises = req.files.map((file) => uploadImageToGCS(file, folderName));
       const newPictureUrls = await Promise.all(uploadPromises);
       pictureUrls = [...pictureUrls, ...newPictureUrls];
