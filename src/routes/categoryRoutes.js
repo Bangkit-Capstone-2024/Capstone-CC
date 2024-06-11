@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 
-import { createCategory, getAllCategories, deleteCategory, updateCategory } from "../controllers/categoryController"; // Sesuaikan dengan path controller Anda
+import { createCategory, getAllCategories, deleteCategory, updateCategory, getCategoryById } from "../controllers/categoryController"; // Sesuaikan dengan path controller Anda
 const authCheck = require("../middlewares/AuthCheck");
 
 // Filter file untuk memastikan hanya gambar yang diizinkan
@@ -23,9 +23,11 @@ const imageFilter = (req, file, cb) => {
 const category_controllers = express.Router();
 
 category_controllers.post("/categories", upload.single('image'), authCheck, createCategory);
-category_controllers.get("/categories", getAllCategories);
+category_controllers.get("/categories", authCheck, getAllCategories);
 category_controllers.delete("/categories/:id", authCheck, deleteCategory);
 category_controllers.patch("/categories/:id",  upload.single('image'), authCheck, updateCategory);
+category_controllers.get("/categories/:id", authCheck, getCategoryById);
+
 
 
 export default category_controllers;

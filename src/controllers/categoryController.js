@@ -203,6 +203,8 @@ export const updateCategory = async (req, res) => {
     });
 
     if (!category) {
+      logger.warn(`Category not found: ID ${id}`);
+
       return res.status(404).json({
         success: "false",
         message: "Category not found",
@@ -241,6 +243,44 @@ export const updateCategory = async (req, res) => {
   } catch (error) {
     logger.error(`Error updating category: ${error.message}`);
 
+    res.status(500).json({
+      success: "false",
+      error: error.message,
+    });
+  }
+};
+
+export const getCategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const category = await CategoryModels.findUnique({
+      where: { id: parseInt(id) },
+      include: { products: true },
+    });
+
+    if (!category) {
+      logger.warn(`Category not found: ID ${id}`);
+      return res.status(404).json({
+        success: "false",
+        message: "Category not found!",
+      });
+    }
+
+    const amount = category.products.length;
+
+    logger.info(`Retrieved category: ${category.name_categories}`);
+
+    res.status(200).json({
+      success: "true",
+      message: "Category retrieved successfully",
+      data: {
+        ...category,
+        amount,
+      }
+  });
+  } catch (error) {
+    logger.error(`Error retrieving category: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
