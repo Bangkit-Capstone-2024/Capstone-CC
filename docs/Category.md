@@ -92,12 +92,22 @@ Response Body Error jika masih ada product:
 <details><summary>Update Category by Id</summary>
 
 ### Endpoint : ```PATCH /api/v1/categories/:id```
+Request Headers :
 
-Request Body :
+```
+Key: Authorization
+Value: Baerer <token>
+```
+
+Request Body menggunakan form-data:
+
+> semua key berupa `Text` kecuali avatar menggunakan `File`
+
 
 ```json
 {
-  "name_categories": "new_category_name_update"
+  "name_categories": "new_category_name_update",
+  "image": "url"
 }
 
 
