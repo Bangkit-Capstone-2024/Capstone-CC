@@ -144,7 +144,7 @@ export const UsersCreate = async (req, res) => {
         });
 
         const token = getJwtToken(userModel);
-        // generateVerificationLink(userModel);
+        generateVerificationLink(userModel);
 
         //Logging Kirim email verifikasi
         console.log(
@@ -172,7 +172,7 @@ export const UsersCreate = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             success: "false",
-            error: error.message,
+            error: `Terjadi kesalahan : ${error.message}`,
         });
     }
 };
@@ -317,53 +317,9 @@ export const UsersResendVerificationEmail = async (req, res) => {
         }
 
         // CREATE TOKEN
-        const token = jwt.sign(
-            {
-                app_name: process.env.APP_ID,
-                id: user.id,
-                email: user.email,
-                username: user.username,
-            },
-            process.env.API_SECRET,
-            {
-                expiresIn: "1d",
-            }
-        );
-
-        const hashToken = CryptoJS.AES.encrypt(
-            token,
-            process.env.API_SECRET
-        ).toString();
 
         // Generate verification link
-        const verificationLink = `${
-            process.env.CLIENT_URL
-        }/api/v1/users/verify-email/${user.id}/${encodeURIComponent(
-            hashToken
-        )}`;
-
-        // Read email template
-        const templatePath = path.join(
-            __dirname,
-            "../emailTemplates",
-            "verificationEmail.html"
-        );
-        const template = fs.readFileSync(templatePath, "utf8");
-
-        // Replace placeholder with actual link
-        let htmlToSend = template.replace(/{{username}}/g, user.username);
-        htmlToSend = htmlToSend.replace(/{{email}}/g, user.email);
-        htmlToSend = htmlToSend.replace(
-            /{{verificationLink}}/g,
-            verificationLink
-        );
-
-        await transporter.sendMail({
-            from: process.env.ZOHO_EMAIL,
-            to: user.email,
-            subject: "Email Verification for Your Momee.id Account",
-            html: htmlToSend,
-        });
+        generateVerificationLink(user);
 
         res.status(200).json({
             success: "true",
@@ -444,7 +400,6 @@ const createUser = async ({ uName, uEmail, uPassword, isFromGoogleAuth }) => {
             isVerified: isFromGoogleAuth ? true : false,
         },
     });
-    // generateVerificationLink(userModel);
     return userModel;
 };
 
