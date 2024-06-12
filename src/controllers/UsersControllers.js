@@ -502,7 +502,7 @@ export const UserGoogleAuth = async (req, res) => {
     } catch (e) {
         res.status(500).json({
             success: "false",
-            message: `Terjadi kesalahan ${error.message}`,
+            message: `Terjadi kesalahan ${e.message}`,
         });
     }
 };
