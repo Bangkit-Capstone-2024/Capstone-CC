@@ -15,12 +15,16 @@ Key: Authorization
 Value: Baerer <token>
 ```
 
-Request Body :
+Request Body menggunakan form-data:
+
+> semua key berupa `Text` kecuali `image` menggunakan `File`
 
 ```json
 {
   "name_tenants": "Tenant Name",
-  "address_tenants": "Tenant Address"
+  "address_tenants": "Tenant Address",
+  "image": "image-url",
+  "phone": "0812345"
 }
 ```
 
@@ -34,6 +38,8 @@ Response Body Success :
     "id": 1,
     "user_id": 1,
     "name_tenants": "Tenant Name",
+    "image": "image-url",
+    "phone": "081234",
     "address_tenants": "Tenant Address",
     "created_at": "2024-05-29T09:27:59.169Z"
   }
@@ -230,12 +236,16 @@ Key: Authorization
 Value: Baerer <token>
 ```
 
-Request Body :
+Request Body menggunakan form-data:
+
+> semua key berupa `Text` kecuali `image` menggunakan `File`
 
 ```json
 {
-  "name_tenants": "Updated Tenant Name",
-  "address_tenants": "Updated Tenant Address"
+  "name_tenants": "Tenant Name",
+  "address_tenants": "Tenant Address",
+  "phone": "0812345",
+  "image": "image-url"
 }
 ```
 
@@ -249,6 +259,8 @@ Response Body Success
     "id": 1,
     "user_id": 46,
     "name_tenants": "Updated Tenant Name",
+    "image": "image-url",
+    "phone": "081234",
     "address_tenants": "Updated Tenant Address",
     "created_at": "2024-05-29T09:20:02.361Z"
   }

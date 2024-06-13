@@ -23,10 +23,11 @@ export const createBooking = async (req, res) => {
     }
 
     if (product.stock <= 0) {
-        return res.status(400).json({
-          success: "false",
-          message: "Product is out of stock",
-        });
+      logger.warn(`Product out of stock: ID ${product_id}`);
+      return res.status(400).json({
+        success: "false",
+        message: "Product is out of stock",
+      });
     }
 
     // Calculate the total price based on rental period and product price
@@ -62,6 +63,8 @@ export const createBooking = async (req, res) => {
       data: booking,
     });
   } catch (error) {
+    logger.error(`Error creating booking: ${error.message}`);
+
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -98,6 +101,8 @@ export const getBookingsByUser = async (req, res) => {
       data: bookings,
     });
   } catch (error) {
+    logger.error(`Error retrieving bookings for user: ${error.message}`);
+
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -137,6 +142,8 @@ export const getBookingById = async (req, res) => {
       data: booking,
     });
   } catch (error) {
+    logger.error(`Error retrieving booking: ${error.message}`);
+
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -187,6 +194,8 @@ export const deleteBooking = async (req, res) => {
       message: "Booking canceled successfully",
     });
   } catch (error) {
+    logger.error(`Error cancelling booking: ${error.message}`);
+
     res.status(500).json({
       success: "false",
       error: error.message,

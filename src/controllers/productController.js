@@ -7,6 +7,8 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import multer from "multer";
 import express from "express";
+import logger from "../middlewares/logger";
+
 const { classifyImage, getLabelsFromPrediction } = require('../models/mlModel');
 
 dotenv.config();
@@ -102,6 +104,7 @@ export const createProduct = async (req, res) => {
       data: product,
     });
   } catch (error) {
+    logger.error(`Error creating product: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -166,6 +169,7 @@ export const updateProduct = async (req, res) => {
       data: product,
     });
   } catch (error) {
+    logger.error(`Error updating product: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -188,6 +192,7 @@ export const getAllProducts = async (req, res) => {
       data: products,
     });
   } catch (error) {
+    logger.error( `Error retrieving products: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -222,6 +227,7 @@ export const getProductById = async (req, res) => {
       data: product,
     });
   } catch (error) {
+    logger.error(`Error retrieving product: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -257,6 +263,7 @@ export const deleteProduct = async (req, res) => {
       message: "Product deleted successfully",
     });
   } catch (error) {
+    logger.error(`Error deleting product: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -303,7 +310,7 @@ export const searchProducts = async (req, res) => {
       data: products,
     });
   } catch (error) {
-    console.error("Error searching for products", error);
+    logger.error(`Error searching for products ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -367,7 +374,7 @@ export const searchProductsByImage = async (req, res) => {
       data: formattedProducts,
     });
   } catch (error) {
-    console.error('Error searching for product by image:', error);
+    console.error(`Error searching for product by image: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,

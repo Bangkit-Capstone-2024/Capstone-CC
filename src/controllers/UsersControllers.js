@@ -13,6 +13,8 @@ const path = require("path");
 import { Storage } from "@google-cloud/storage";
 import axios from "axios";
 import { create } from "domain";
+import logger from "../middlewares/logger";
+
 
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client();
@@ -76,66 +78,68 @@ export const UsersCreate = async (req, res) => {
             },
         });
 
-        if (checkUniqueEmail) {
-            if (checkUniqueEmail.isVerified) {
-                return res.status(401).json({
-                    success: "false",
-                    message: "Email is already verified",
-                });
-            } else if (checkUniqueEmail.isDeleted) {
-                // Reactivate the soft-deleted account
-                const updatedUser = await prisma.user.update({
-                    where: {
-                        email: email,
-                    },
-                    data: {
-                        isDeleted: false,
-                        isVerified: false, // Ensure the user needs to verify their email again
-                        password: bcryptjs.hashSync(password, 10), // Update password
-                        username: username, // Update username if needed
-                    },
-                });
-
-                generateVerificationLink(updatedUser);
-
-                // Set authentication cookie
-                res.cookie("auth_token", token, {
-                    httpOnly: true,
-                    secure: true,
-                    maxAge: 24 * 60 * 60 * 1000,
-                });
-
-                return res.status(200).json({
-                    success: "true",
-                    message:
-                        "Account reactivated successfully. Please check your email to verify your account.",
-                    data: {
-                        id: updatedUser.id,
-                        email: updatedUser.email,
-                        username: updatedUser.username,
-                    },
-                });
-            } else {
-                return res.status(401).json({
-                    success: "false",
-                    message: "Email already exists",
-                });
-            }
-        }
-
         // if (checkUniqueEmail) {
-        //   if (checkUniqueEmail.isVerified) {
-        //     return res.status(401).json({
-        //       success: "false",
-        //       message: "Email is already verified",
-        //     });
-        //   } else {
-        //     return res.status(401).json({
-        //       success: "false",
-        //       message: "Email already exists",
-        //     });
-        //   }
+        //     if (checkUniqueEmail.isVerified) {
+        //         return res.status(401).json({
+        //             success: "false",
+        //             message: "Email is already verified",
+        //         });
+        //     } else if (checkUniqueEmail.isDeleted) {
+        //         // Reactivate the soft-deleted account
+        //         const updatedUser = await prisma.user.update({
+        //             where: {
+        //                 email: email,
+        //             },
+        //             data: {
+        //                 isDeleted: false,
+        //                 isVerified: false, // Ensure the user needs to verify their email again
+        //                 password: bcryptjs.hashSync(password, 10), // Update password
+        //                 username: username, // Update username if needed
+        //             },
+        //         });
+
+        //         generateVerificationLink(updatedUser);
+
+        //         // Set authentication cookie
+        //         res.cookie("auth_token", token, {
+        //             httpOnly: true,
+        //             secure: true,
+        //             maxAge: 24 * 60 * 60 * 1000,
+        //         });
+
+        //         return res.status(200).json({
+        //             success: "true",
+        //             message:
+        //                 "Account reactivated successfully. Please check your email to verify your account.",
+        //             data: {
+        //                 id: updatedUser.id,
+        //                 email: updatedUser.email,
+        //                 username: updatedUser.username,
+        //             },
+        //         });
+        //     } else {
+        //         return res.status(401).json({
+        //             success: "false",
+        //             message: "Email already exists",
+        //         });
+        //     }
         // }
+
+        if (checkUniqueEmail) {
+          if (checkUniqueEmail.isVerified) {
+            return res.status(401).json({
+              success: "false",
+              message: "Email is already verified",
+            });
+          } else {
+            logger.warn(`Email already exists: ${email}`);
+
+            return res.status(401).json({
+              success: "false",
+              message: "Email already exists",
+            });
+          }
+        }
 
         const userModel = await createUser({
             uEmail: email,
@@ -147,9 +151,8 @@ export const UsersCreate = async (req, res) => {
         generateVerificationLink(userModel);
 
         //Logging Kirim email verifikasi
-        console.log(
-            `User ${userModel.username} created successfully. Email verification sent to ${userModel.email}`
-        );
+        logger.info(`User ${userModel.username} created successfully. Email verification sent to ${userModel.email}`);
+
         // Set authentication cookie
         res.cookie("auth_token", token, {
             httpOnly: true,
@@ -170,6 +173,8 @@ export const UsersCreate = async (req, res) => {
 
         // res.redirect('/homepage')
     } catch (error) {
+        logger.error(`Error creating user: ${error.message}`);
+
         return res.status(500).json({
             success: "false",
             error: `Terjadi kesalahan : ${error.message}`,
@@ -261,7 +266,7 @@ export const UsersVerifyEmail = async (req, res) => {
             html: htmlToSend,
         });
 
-        console.log(`Verification email send to ${user.email}`);
+        logger.info(`Verification email send to ${user.email}`);
 
         res.status(200).send(`
         <html>
@@ -274,8 +279,9 @@ export const UsersVerifyEmail = async (req, res) => {
           </body>
         </html>
       `);
-        console.log(`User ${user.username} verified successfully.`);
+        logger.info(`User ${user.username} verified successfully.`);
     } catch (error) {
+        logger.error(`${error.message}`);
         res.status(500).json({
             success: "false",
             error: error.message,
@@ -326,8 +332,11 @@ export const UsersResendVerificationEmail = async (req, res) => {
             message: "Verification email resent successfully",
         });
 
-        console.log(`Verification email resent to ${user.email} successfully`);
+        logger.info(`Verification email resent to ${user.email} successfully`);
     } catch (error) {
+        logger.error(`User resend verification error ${error.message}`);
+
+
         res.status(500).json({
             success: "false",
             error: error.message,
@@ -455,6 +464,7 @@ export const UserGoogleAuth = async (req, res) => {
             },
         });
     } catch (e) {
+        logger.error(`Terjadi kesalahan ${e.message}`);
         res.status(500).json({
             success: "false",
             message: `Terjadi kesalahan ${e.message}`,
@@ -473,6 +483,7 @@ export const UsersLogin = async (req, res) => {
             },
         });
         if (!Usercheck) {
+            logger.warn(`Email or Password Incorrect : ${Usercheck.username}`);
             return res.status(401).json({
                 success: "false",
                 message: "Email or Password Incorrect",
@@ -485,6 +496,8 @@ export const UsersLogin = async (req, res) => {
         );
 
         if (!comparePassword) {
+            logger.warn(`Email or Password Incorrect : ${Usercheck.username}`);
+
             return res.status(401).json({
                 success: "false",
                 message: "Email or Password Incorrect",
@@ -511,6 +524,7 @@ export const UsersLogin = async (req, res) => {
 
         res.setHeader("Access-Control-Allow-Origin", "*");
 
+        logger.info(`User logged in: ${Usercheck.username}`);
         res.status(200).json({
             success: "true",
             message: "Login successfully",
@@ -523,6 +537,8 @@ export const UsersLogin = async (req, res) => {
             },
         });
     } catch (error) {
+        logger.error(`Error logging in user: ${error.message}`);
+
         res.status(500).json({
             success: "false",
             message: error.message,
@@ -554,6 +570,7 @@ export const UsersRead = async (req, res) => {
 
         const conn = await UsersModels.count();
 
+        logger.info(`Retrieved all users for page: ${page}`);
         res.status(200).json({
             success: "true",
             message: "List users",
@@ -563,6 +580,7 @@ export const UsersRead = async (req, res) => {
             query: result,
         });
     } catch (error) {
+        logger.error(`Error retrieving users: ${error.message}`);
         res.status(500).json({
             success: "false",
             message: error.message,
@@ -607,6 +625,8 @@ export const UsersUpdate = async (req, res) => {
         });
 
         if (!checkUniqueId) {
+            logger.warn(`User ID not found: ${id}`);
+
             return res.status(404).json({
                 success: "false",
                 message: "User ID not found!",
@@ -652,6 +672,8 @@ export const UsersUpdate = async (req, res) => {
             data: updatedData,
         });
 
+        logger.info(`User updated successfully: ${result.username}`);
+
         res.status(201).json({
             success: "true",
             message: "User updated successfully!",
@@ -668,6 +690,8 @@ export const UsersUpdate = async (req, res) => {
             },
         });
     } catch (error) {
+        logger.error(`Error updating user: ${error.message}`);
+
         res.status(500).json({
             success: "false",
             error: error.message,
@@ -702,6 +726,8 @@ export const UsersLogout = async (req, res) => {
             message: "Logout successfully",
         });
     } catch (error) {
+        logger.error(`Error logging out user: ${error.message}`);
+
         res.status(500).json({
             success: "false",
             error: error.message,
@@ -740,6 +766,8 @@ export const UsersDelete = async (req, res) => {
         });
         console.log(`User ${checkId.username} deleted successfully`);
     } catch (error) {
+        logger.error(`Error deleting user: ${error.message}`);
+
         res.status(500).json({
             success: "false",
             error: error.message,
@@ -760,6 +788,8 @@ export const requestPasswordReset = async (req, res) => {
         });
 
         if (!user) {
+            logger.warn(`User with this email does not exist: ${email}`);
+
             return res.status(404).json({
                 success: "false",
                 message: "User with this email does not exist",
@@ -806,7 +836,7 @@ export const requestPasswordReset = async (req, res) => {
 
         transporter.sendMail(mailOptions, (err, info) => {
             if (err) {
-                console.error(`Error sending email: ${err}`);
+                logger.error(`Error sending email: ${err}`);
                 return res.status(500).json({
                     success: "false",
                     message: "Error sending email",
@@ -814,7 +844,7 @@ export const requestPasswordReset = async (req, res) => {
                 });
             }
 
-            console.log(`Reset Password send to ${user.email}`);
+            logger.info(`Reset Password send to ${user.email}`);
             res.status(200).json({
                 success: "true",
                 message:
@@ -822,6 +852,8 @@ export const requestPasswordReset = async (req, res) => {
             });
         });
     } catch (error) {
+        logger.error(`Error requesting password reset: ${error.message}`);
+
         res.status(500).json({
             success: "false",
             message: error.message,
@@ -883,18 +915,21 @@ export const resetPassword = async (req, res) => {
 
         transporter.sendMail(mailOptions, (err, info) => {
             if (err) {
-                console.error("Error sending confirmation email:", err);
+                logger.error(`Error sending confirmation email: ${err}`);
             } else {
-                console.log("Confirmation email sent:" + email);
+                logger.info(`Confirmation email sent to : ${user.email}`);
             }
         });
 
+        logger.info(`Password has been reset for user: ${user.username}`);
         res.status(200).json({
             success: "true",
             message:
-                "Password has been res`et and a confirmation email has been sent.",
+                "Password has been reset and a confirmation email has been sent.",
         });
     } catch (error) {
+        logger.error(`Error resetting password: ${error.message}`);
+
         res.status(500).json({
             success: "false",
             message: error.message,

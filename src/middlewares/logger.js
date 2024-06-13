@@ -1,23 +1,27 @@
 // logger.js
-const { createLogger, format, transports } = require('winston');
-const { combine, timestamp, printf, colorize } = format;
+//const { createLogger, format, transports } = require('winston');
+//const { combine, timestamp, printf, colorize } = format;
 const path = require('path');
+import winston from "winston";
 
-const logFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp} ${level}: ${message}`;
-});
+import moment from "moment-timezone";
 
-const logger = createLogger({
-  level: 'info',
-  format: combine(
-    timestamp(),
-    colorize(),
-    logFormat
+const timezoned = () => {
+  return moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
+};
+
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp({ format: timezoned }),
+    winston.format.printf(({ timestamp, level, message }) => {
+      return `${timestamp} ${level} : ${message}`;
+    })
   ),
   transports: [
-    new transports.Console(),
-    new transports.File({ filename: path.join('/var/log/dev-momee', 'error.log'), level: 'error' }),
-    new transports.File({ filename: path.join('/var/log/dev-momee', 'combined.log') }),
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: path.join('/var/log/dev-momee', 'error.log'), level: 'error' }),
+    new winston.transports.File({ filename: path.join('/var/log/dev-momee', 'combined.log') }),
   ],
 });
 

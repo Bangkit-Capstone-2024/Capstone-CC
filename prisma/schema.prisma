@@ -46,6 +46,7 @@ model Tenants {
   user_id         Int
   name_tenants    String
   image           String?
+  phone           String?
   address_tenants String
   location_lat    Float
   location_lng    Float

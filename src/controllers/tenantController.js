@@ -61,7 +61,7 @@ const deleteFolderFromGCS = async (folderName) => {
 // Membuat tenant baru
 export const createTenant = async (req, res) => {
   try {
-    const { name_tenants, address_tenants } = req.body;
+    const { name_tenants, address_tenants, phone } = req.body;
     const user_id = req.user.id;
 
     // Periksa apakah user_id ada di database
@@ -72,6 +72,8 @@ export const createTenant = async (req, res) => {
     });
 
     if (!user) {
+      logger.warn(`User ID not found: ${user_id}`);
+
       return res.status(404).json({
         success: "false",
         message: "User ID not found!",
@@ -105,6 +107,8 @@ export const createTenant = async (req, res) => {
     const locationData = response.data.results[0];
 
     if (!locationData) {
+      logger.warn(`Invalid address provided: ${address_tenants}`);
+
       return res.status(400).json({
         success: "false",
         message: "Invalid address",
@@ -125,6 +129,7 @@ export const createTenant = async (req, res) => {
       data: {
         user_id,
         name_tenants,
+        phone,
         image: imageUrl,
         address_tenants: formattedAddress, // Store the formatted address
         location_lat: lat, // Add latitude field
@@ -132,6 +137,7 @@ export const createTenant = async (req, res) => {
       },
     });
 
+    logger.info(`Tenant created successfully: ${tenant.name_tenants}`);
     res.status(201).json({
       success: "true",
       message: "Tenant created successfully",
@@ -139,6 +145,7 @@ export const createTenant = async (req, res) => {
       // tenant,
     });
   } catch (error) {
+    logger.error(`Error creating tenant: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -160,11 +167,14 @@ export const getAllTenants = async (req, res) => {
       totalProducts: tenant.products.length,
     }));
 
+    logger.info(`Retrieved all tenants`);
     res.status(200).json({
       success: "true",
       data: tenantsWithProductCount,
     });
   } catch (error) {
+
+    logger.error(`Error retrieving all tenants: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -197,6 +207,8 @@ export const getTenantsByUser = async (req, res) => {
       data: tenantsWithProductCount,
     });
   } catch (error) {
+    logger.error(`Error retrieving tenants by user ID: ${error.message}`);
+
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -223,6 +235,7 @@ export const getTenantById = async (req, res) => {
     });
 
     if (!tenant) {
+      logger.warn(`Tenant not found: ID ${id}`);
       return res.status(404).json({
         success: "false",
         message: "Tenant not found",
@@ -240,6 +253,8 @@ export const getTenantById = async (req, res) => {
       },
     });
   } catch (error) {
+    logger.error(`Error retrieving tenant by ID: ${error.message}`);
+
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -253,7 +268,7 @@ export const getTenantById = async (req, res) => {
 export const updateTenant = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name_tenants, address_tenants } = req.body;
+    const { name_tenants, address_tenants, phone } = req.body;
 
     // Fetch location data from Google Maps API
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -268,6 +283,8 @@ export const updateTenant = async (req, res) => {
     const locationData = response.data.results[0];
 
     if (!locationData) {
+      logger.warn(`Invalid address provided: ${address_tenants}`);
+
       return res.status(400).json({
         success: "false",
         message: "Invalid address",
@@ -280,6 +297,7 @@ export const updateTenant = async (req, res) => {
     let updatedData = {
       name_tenants,
       address_tenants: formattedAddress,
+      phone,
       location_lat: lat,
       location_lng: lng,
     };
@@ -303,6 +321,8 @@ export const updateTenant = async (req, res) => {
       data: tenant,
     });
   } catch (error) {
+    logger.error(`Error updating tenant: ${error.message}`);
+
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -322,6 +342,8 @@ export const deleteTenant = async (req, res) => {
     });
 
     if (!tenant) {
+      logger.warn(`Tenant not found or already deleted: ID ${id}`);
+
       return res.status(404).json({
         success: "false",
         message: "Tenant not found or already deleted!",
@@ -337,11 +359,15 @@ export const deleteTenant = async (req, res) => {
       },
     });
 
+    logger.info(`Tenant deleted successfully: ${tenant.name_tenants}`);
+
     res.status(200).json({
       success: "true",
       message: "Tenant deleted successfully",
     });
   } catch (error) {
+    logger.error(`Error deleting tenant: ${error.message}`);
+
     res.status(500).json({
       success: "false",
       error: error.message,
