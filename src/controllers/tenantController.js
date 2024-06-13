@@ -172,7 +172,39 @@ export const getAllTenants = async (req, res) => {
   }
 };
 
-// Mendapatkan tenant berdasarkan ID
+// Mendapatkan tenant berdasarkan ID User
+export const getTenantsByUser = async (req, res) => {
+  try {
+    
+    const user_id = req.user.id;
+
+    const tenants = await TenantModels.findMany({
+      where: {
+        user_id: parseInt(user_id),
+      },
+      include: {
+        products: true,
+      },
+    });
+
+    const tenantsWithProductCount = tenants.map((tenant) => ({
+      ...tenant,
+      totalProducts: tenant.products.length,
+    }));
+
+    res.status(200).json({
+      success: "true",
+      data: tenantsWithProductCount,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: "false",
+      error: error.message,
+    });
+  }
+};
+
+// Mendapatkan tenant berdasarkan ID Tenant
 export const getTenantById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -214,6 +246,8 @@ export const getTenantById = async (req, res) => {
     });
   }
 };
+
+
 
 // Memperbarui tenant berdasarkan ID
 export const updateTenant = async (req, res) => {

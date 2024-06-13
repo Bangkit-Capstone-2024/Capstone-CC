@@ -19,10 +19,16 @@ const imageFilter = (req, file, cb) => {
     fileFilter: imageFilter,
   });
 
-import { createTenant, getAllTenants, getTenantById, updateTenant, deleteTenant } from "../controllers/tenantController"; // Sesuaikan dengan path controller Anda
+import { createTenant, 
+  getAllTenants, 
+  getTenantById,
+  getTenantsByUser, 
+  updateTenant, 
+  deleteTenant } from "../controllers/tenantController"; // Sesuaikan dengan path controller Anda
 
 tenant_controllers.post("/tenants", upload.single('image'), authCheck, createTenant);
 tenant_controllers.get("/tenants", authCheck, getAllTenants);
+tenant_controllers.get("/tenants/user", authCheck, getTenantsByUser);
 tenant_controllers.get("/tenants/:id", authCheck, getTenantById);
 tenant_controllers.patch("/tenants/:id", upload.single('image'), authCheck, updateTenant);
 tenant_controllers.delete("/tenants/:id", authCheck, deleteTenant);
