@@ -82,7 +82,7 @@ Rsponse Body Error :
 
 > Resend verification digunakan untuk user yang belum melakukan verifikasi email.
 
-Endpoint : GET /api/v1/users/resend-verification-email
+### Endpoint : ```GET /api/v1/users/resend-verification-email```
 
 Request Body :
 
@@ -178,12 +178,25 @@ Response body error :
 1. User tidak diijinkan melakukan perubahan pada email.
 2. Username tidak boleh sama dengan existing
 
-Request Body :
+Request Headers :
+
+```
+Key: Authorization
+Value: Baerer <token>
+```
+
+Request Body menggunakan form-data:
+
+> semua key berupa `Text` kecuali avatar menggunakan `File`
 
 ```json
 {
   "username": "Roby Update new",
-  "password": "password1232"
+  "password": "password1232",
+  "avatar": "url",
+  "gender":"male/female",
+  "phone":"0812345678",
+  "address":"jakarta"
 }
 ```
 
@@ -305,14 +318,14 @@ Response body error :
 <details><summary>Logout User API</summary>
 
 
-### Endpoint : ```DELETE /api/v1/users/delete/{id}```
+### Endpoint : ```POST /api/v1/users/logout```
 
 Reponse body Success :
 
 ```json
 {
-  "success": "true",
-  "message": "Successfully delete users!"
+    "success": "true",
+    "message": "Logout successfully"
 }
 ```
 

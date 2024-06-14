@@ -1,0 +1,47 @@
+name: CI/CD Pipeline Production
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20.14.0' # Ubah ke versi Node.js yang Anda gunakan
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build project
+      run: npm run build
+
+  deploy-to-production:
+    if: github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+
+    - name: Deploy to Development Server
+      env:
+        SERVER_IP: ${{ secrets.PROD_SERVER_IP }}
+        SERVER_USERNAME: ${{ secrets.PROD_USERNAME}}
+      run: |
+        ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/prod-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart prod-momee && pm2 describe prod-momee'
+

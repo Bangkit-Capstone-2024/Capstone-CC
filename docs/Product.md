@@ -1,8 +1,18 @@
 # Product API Spec
 
+> Pada Products Model `address_tenants` akan mereffer dari Alamat Tenant yang sudah di input sebelumnya  
+> Value `is_available` akan otomatis berubah menjadi `false` ketika stock barang menjadi 0
+
 <details><summary>Create Product</summary>
 
 ### Endpoint : ```POST /api/v1/products```
+
+Request Headers :
+
+```
+Key: Authorization
+Value: Baerer <token>
+```
 
 Request Body menggunakan form-data:
 
@@ -10,13 +20,12 @@ Request Body menggunakan form-data:
 
 ```json
 {
-  "name_products": "Stroller Lucu",
+  "name_products": "Ride On 2 test",
   "description": "Example Description Product",
-  "price": 100.0,
-  "stock": 3,
+  "price": 8500,
+  "stock": 5,
   "is_available": true,
   "category_id": 1, // Pastikan ini sesuai dengan ID kategori yang ada
-  "tenant_id": 5, // Pastikan ini sesuai dengan ID tenant yang ada
   "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg"
 }
 ```
@@ -25,22 +34,23 @@ Respons Body Success :
 
 ```json
 {
-  "success": "true",
-  "message": "Product created successfully",
-  "data": {
-    "id": 3,
-    "name_products": "Stroller Lucu 2",
-    "slug": "stroller-lucu-2",
-    "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg",
-    "description": "A high-end smartphone with 128GB storage",
-    "price": 100,
-    "stock": 2,
-    "is_available": true,
-    "created_at": "2024-05-29T16:17:36.780Z",
-    "updated_at": "2024-05-29T16:17:36.780Z",
-    "category_id": 1,
-    "tenant_id": 5
-  }
+    "success": "true",
+    "message": "Product created successfully",
+    "data": {
+        "id": 1,
+        "name_products": "Ride On 2 test",
+        "slug": "ride-on-2-test-846c3f67",
+        "pictures": "[\"https://storage.googleapis.com/dev-momee-products-images/Roby Stores Update 2/0c969e2d9b5cd968c62705264c94ba0c-ride-on.jpg\"]",
+        "description": "Example Description Product",
+        "price": 8500,
+        "stock": 5,
+        "is_available": true,
+        "created_at": "2024-06-07T18:56:16.669Z",
+        "updated_at": "2024-06-07T18:56:16.669Z",
+        "category_id": 1,
+        "tenant_id": 2,
+        "address_tenants": "Kota Semarang, Jawa Tengah, Indonesia"
+    }
 }
 ```
 
@@ -65,61 +75,39 @@ Respons Body :
 
 ```json
 {
-  "success": "true",
-  "data": [
-    {
-      "id": 2,
-      "name_products": "Stroller Lucu",
-      "slug": "stroller-lucu",
-      "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg",
-      "description": "Description Products",
-      "price": 100,
-      "stock": 3,
-      "is_available": true,
-      "created_at": "2024-05-29T16:16:26.822Z",
-      "updated_at": "2024-05-29T16:16:26.822Z",
-      "category_id": 1,
-      "tenant_id": 5,
-      "category": {
-        "id": 1,
-        "name_categories": "Stroller",
-        "created_at": "2024-05-29T16:08:18.905Z"
-      },
-      "tenant": {
-        "id": 5,
-        "user_id": 46,
-        "name_tenants": "Tenant Name",
-        "address_tenants": "Tenant Address",
-        "created_at": "2024-05-29T09:21:54.933Z"
-      }
-    },
-    {
-      "id": 3,
-      "name_products": "Stroller Lucu 2",
-      "slug": "stroller-lucu-2",
-      "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg",
-      "description": "Description Products",
-      "price": 100,
-      "stock": 2,
-      "is_available": true,
-      "created_at": "2024-05-29T16:17:36.780Z",
-      "updated_at": "2024-05-29T16:17:36.780Z",
-      "category_id": 1,
-      "tenant_id": 5,
-      "category": {
-        "id": 1,
-        "name_categories": "Stroller",
-        "created_at": "2024-05-29T16:08:18.905Z"
-      },
-      "tenant": {
-        "id": 5,
-        "user_id": 46,
-        "name_tenants": "Tenant Name",
-        "address_tenants": "Tenant Address",
-        "created_at": "2024-05-29T09:21:54.933Z"
-      }
-    }
-  ]
+    "success": "true",
+    "data": [
+        {
+            "id": 1,
+            "name_products": "Ride On 2 test",
+            "slug": "ride-on-2-test-846c3f67",
+            "pictures": "[\"https://storage.googleapis.com/dev-momee-products-images/Roby Stores Update 2/0c969e2d9b5cd968c62705264c94ba0c-ride-on.jpg\"]",
+            "description": "Example Description Product",
+            "price": 8500,
+            "stock": 5,
+            "is_available": true,
+            "created_at": "2024-06-07T18:56:16.669Z",
+            "updated_at": "2024-06-07T18:56:16.669Z",
+            "category_id": 1,
+            "tenant_id": 2,
+            "address_tenants": "Kota Semarang, Jawa Tengah, Indonesia",
+            "category": {
+                "id": 1,
+                "name_categories": "Test Category Jakarta",
+                "created_at": "2024-06-07T18:55:10.265Z"
+            },
+            "tenant": {
+                "id": 2,
+                "user_id": 1,
+                "name_tenants": "Roby Stores Update 2",
+                "address_tenants": "Kota Semarang, Jawa Tengah, Indonesia",
+                "location_lat": -6.9818006,
+                "location_lng": 110.4120729,
+                "created_at": "2024-06-07T18:37:08.047Z",
+                "updated_at": "2024-06-07T18:45:28.573Z"
+            }
+        }
+    ]
 }
 ```
 </details>
@@ -201,6 +189,47 @@ Response Body Error :
 ```
 </details>
 
+<details><summary>Search Product by Image</summary>
+
+### Endpoint : ``` POST /api/v1/products/search-by-image```
+
+Response Body Success :
+
+```json
+{
+    "success": "true",
+    "message": "Products retrieved successfully",
+    "data": [
+        {
+            "id": 5,
+            "name_products": "Baby Bed",
+            "slug": "baby-bed-9cb5ef7d",
+            "pictures": "[\"https://storage.googleapis.com/dev-momee-products-images/Roby Stores Update/4aed844293c0f78b9ac80c350386562b-Delicate-Wooden-Style-Baby-Bed-Baby-Cot-Design-Simple-and-Elegant-Baby-Swing-and-Bassinet.webp\"]",
+            "description": "Example Description Product",
+            "price": 10500,
+            "stock": 2,
+            "is_available": true,
+            "created_at": "2024-06-04T04:03:56.758Z",
+            "updated_at": "2024-06-04T04:03:56.758Z",
+            "category_id": 4,
+            "tenant_id": 1
+        }
+    ]
+}
+```
+
+Response Body Error :
+
+```json
+
+{
+    "success": "false",
+    "message": "No products found for the given image"
+}
+```
+</details>
+
+
 <details><summary>Show Product by Id</summary>
 
 ### Endpoint : ```GET /api/v1/products/:id```
@@ -244,6 +273,13 @@ Response Body Success :
 
 ### Endpoint : ```PATCH /api/v1/products/:id```
 
+Request Headers :
+
+```
+Key: Authorization
+Value: Baerer <token>
+```
+
 Request Body menggunakan form-data:
 
 > semua key berupa `Text` kecuali pictures menggunakan `File`
@@ -256,7 +292,6 @@ Request Body menggunakan form-data:
   "stock": 3,
   "is_available": true,
   "category_id": 1, // Pastikan ini sesuai dengan ID kategori yang ada
-  "tenant_id": 5, // Pastikan ini sesuai dengan ID tenant yang ada
   "pictures": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-48544360/pacific_baby_stroller_bayi_pacific_spacebaby_sb-6212_-reversible_stir-_full01_k1qzxqto.jpg"
 }
 ```
@@ -319,3 +354,5 @@ Response Body Success:
 1. Nama Product harus unik atau bisa sama?
 2. Jika nama product sama, bagaimana dengan slug-nya?
 </details>
+
+

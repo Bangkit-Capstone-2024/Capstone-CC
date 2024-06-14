@@ -7,6 +7,9 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import multer from "multer";
 import express from "express";
+import logger from "../middlewares/logger";
+
+const { classifyImage, getLabelsFromPrediction } = require('../models/mlModel');
 
 dotenv.config();
 
@@ -48,12 +51,14 @@ const generateUniqueSlug = (name) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name_products, description, price, stock, is_available, category_id, tenant_id } = req.body;
+    const { name_products, description, price, stock, is_available, category_id } = req.body;
+
+    const user_id = req.user.id;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
-    const tenant = await TenantModels.findUnique({
+    const tenant = await TenantModels.findFirst({
       where: {
-        id: parseInt(tenant_id),
+        user_id: parseInt(user_id),
       },
     });
 
@@ -73,7 +78,8 @@ export const createProduct = async (req, res) => {
     //   pictureUrl = await uploadImageToGCS(req.file, tenant.name_tenants);
     // }
     if (req.files && req.files.length > 0) {
-      const uploadPromises = req.files.map((file) => uploadImageToGCS(file, tenant.name_tenants));
+      const folderName = `tenants/${tenant.name_tenants}/products_images;`
+      const uploadPromises = req.files.map((file) => uploadImageToGCS(file, folderName));
       pictureUrls = await Promise.all(uploadPromises);
     }
 
@@ -87,7 +93,8 @@ export const createProduct = async (req, res) => {
         stock: parseInt(stock),
         is_available: is_available === "true" ? true : false,
         category_id: parseInt(category_id),
-        tenant_id: parseInt(tenant_id),
+        tenant_id: tenant.id,
+        address_tenants: tenant.address_tenants, // Include tenant's address
       },
     });
 
@@ -97,6 +104,7 @@ export const createProduct = async (req, res) => {
       data: product,
     });
   } catch (error) {
+    logger.error(`Error creating product: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -110,12 +118,14 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name_products, description, price, stock, is_available, category_id, tenant_id } = req.body;
+    const { name_products, description, price, stock, is_available, category_id } = req.body;
+
+    const user_id = req.user.id;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
-    const tenant = await TenantModels.findUnique({
+    const tenant = await TenantModels.findFirst({
       where: {
-        id: parseInt(tenant_id),
+        user_id: parseInt(user_id),
       },
     });
 
@@ -130,7 +140,8 @@ export const updateProduct = async (req, res) => {
 
     let pictureUrls = [];
     if (req.files && req.files.length > 0) {
-      const uploadPromises = req.files.map((file) => uploadImageToGCS(file, tenant.name_tenants));
+      const folderName = `tenants/${tenant.name_tenants}/products_images;`
+      const uploadPromises = req.files.map((file) => uploadImageToGCS(file, folderName));
       const newPictureUrls = await Promise.all(uploadPromises);
       pictureUrls = [...pictureUrls, ...newPictureUrls];
     }
@@ -148,6 +159,7 @@ export const updateProduct = async (req, res) => {
         stock: parseInt(stock),
         is_available: is_available === "true" ? true : false,
         category_id: parseInt(category_id),
+        address_tenants: tenant.address_tenants, // Include tenant's address
       },
     });
 
@@ -157,6 +169,7 @@ export const updateProduct = async (req, res) => {
       data: product,
     });
   } catch (error) {
+    logger.error(`Error updating product: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -179,6 +192,7 @@ export const getAllProducts = async (req, res) => {
       data: products,
     });
   } catch (error) {
+    logger.error( `Error retrieving products: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -213,6 +227,7 @@ export const getProductById = async (req, res) => {
       data: product,
     });
   } catch (error) {
+    logger.error(`Error retrieving product: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -248,6 +263,7 @@ export const deleteProduct = async (req, res) => {
       message: "Product deleted successfully",
     });
   } catch (error) {
+    logger.error(`Error deleting product: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,
@@ -272,7 +288,7 @@ export const searchProducts = async (req, res) => {
       where: {
         name_products: {
           contains: name,
-          //   mode: "insensitive",
+          // mode: 'insensitive',
         },
       },
       include: {
@@ -294,7 +310,71 @@ export const searchProducts = async (req, res) => {
       data: products,
     });
   } catch (error) {
-    console.error("Error searching for products", error);
+    logger.error(`Error searching for products ${error.message}`);
+    res.status(500).json({
+      success: "false",
+      error: error.message,
+    });
+  }
+};
+
+export const searchProductsByImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: "false",
+        message: "Please upload an image",
+      });
+    }
+
+    const imageBuffer = req.file.buffer;
+    const predictions = await classifyImage(imageBuffer);
+    const label = getLabelsFromPrediction(predictions);
+
+    console.log('Label from prediction:', label); // Debugging line
+
+    const products = await ProductModels.findMany({
+      where: {
+        OR: [
+          {
+            name_products: {
+              contains: label,
+              // mode: 'insensitive',
+            },
+          },
+          // {
+          //   description: {
+          //     contains: label,
+          //     // mode: 'insensitive',
+          //   },
+          // },
+        ],
+      },
+    });
+
+    if (products.length === 0) {
+      return res.status(200).json({
+        success: "true",
+        message: "No products found for the given image",
+        data: products,
+      });
+    }
+
+    const formattedProducts = products.map(product => {
+      const pictures = JSON.parse(product.pictures);
+      return {
+        ...product,
+        pictures: pictures.length > 0 ? pictures[0] : null,
+      };
+    });
+
+    res.status(200).json({
+      success: "true",
+      message: "Products retrieved successfully",
+      data: formattedProducts,
+    });
+  } catch (error) {
+    console.error(`Error searching for product by image: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,

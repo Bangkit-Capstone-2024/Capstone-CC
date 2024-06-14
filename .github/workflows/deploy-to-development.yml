@@ -1,0 +1,50 @@
+name: CI/CD Pipeline Development
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20.14.0' # Ubah ke versi Node.js yang Anda gunakan
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build project
+      run: npm run build
+
+  deploy-to-development:
+    if: github.ref == 'refs/heads/development'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.DEV_SERVER_SSH_KEY }}
+
+    - name: Add development server to known hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.DEV_SERVER_IP }} >> ~/.ssh/known_hosts
+    
+    - name: Deploy to Development Server
+      env:
+        SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+        SERVER_USERNAME: ${{ secrets.DEV_USERNAME}}
+      run: |
+        ssh $SERVER_USERNAME@$SERVER_IP 'export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh" && nvm use v20.14.0 && cd ~/dev-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart dev-momee && pm2 describe dev-momee'
