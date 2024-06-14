@@ -38,7 +38,7 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.PROD_SERVER_SSH_KEY }}
 
-    - name: Deploy to Development Server
+    - name: Deploy to Production Server
       env:
         SERVER_IP: ${{ secrets.PROD_SERVER_IP }}
         SERVER_USERNAME: ${{ secrets.PROD_USERNAME}}
