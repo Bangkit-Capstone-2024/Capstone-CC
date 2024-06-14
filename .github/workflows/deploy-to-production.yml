@@ -36,12 +36,12 @@ jobs:
     - name: Add SSH key
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: ${{ secrets.PRD_SERVER_SSH_KEY }}
+        ssh-private-key: ${{ secrets.PROD_SERVER_SSH_KEY }}
 
     - name: Deploy to Development Server
       env:
-        SERVER_IP: ${{ secrets.PRD_SERVER_IP }}
-        SERVER_USERNAME: ${{ secrets.PRD_USERNAME}}
+        SERVER_IP: ${{ secrets.PROD_SERVER_IP }}
+        SERVER_USERNAME: ${{ secrets.PROD_USERNAME}}
       run: |
-        ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/dev-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart dev-momee'
+        ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/prod-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart prod-momee && pm2 describe prod-momee'
 
