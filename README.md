@@ -94,7 +94,7 @@ f. Click 'Manage keys'
 g. Click Add Key > Create new key
 h. Choose 'JSON' and 'Create'
 i. Download JSON File and Save
-j. create and save JSON file to new Folder  : `mkdir credeentials`
+j. create and save JSON file to new Folder  : `mkdir credentials`
 ```
 
 6. Edit .env
@@ -102,15 +102,6 @@ j. create and save JSON file to new Folder  : `mkdir credeentials`
 ```
 GOOGLE_APPLICATION_CREDENTIALS=./credentials/<service-account.json>
 GCS_BUCKET_NAME=<BUCKET-NAME>
+GOOGLE_MAPS_API_KEY=<your-MAPS-API-KEY>
 
 ```
-
-## User Model
-
-## Tenants Model
-
-## Product Model
-
-## Rent Model
-
-## Category Model
