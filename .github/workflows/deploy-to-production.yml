@@ -47,5 +47,5 @@ jobs:
         SERVER_IP: ${{ secrets.PROD_SERVER_IP }}
         SERVER_USERNAME: ${{ secrets.PROD_USERNAME}}
       run: |
-        ssh $SERVER_USERNAME@$SERVER_IP 'cd ~/prod-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart prod-momee && pm2 describe prod-momee'
+        ssh $SERVER_USERNAME@$SERVER_IP 'export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh" && nvm use v20.14.0 && cd ~/prod-momee && git pull && npm install && npx prisma migrate deploy && npm run build && pm2 restart prod-momee && pm2 describe prod-momee'
 
