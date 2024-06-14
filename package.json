@@ -10,7 +10,7 @@
         "prestart": "npm run build",
         "clean": "rm -rf dist",
         "build": "npm run clean && npx babel ./src --out-dir dist --copy-files",
-        "start:pm2": "pm2 start dist/index.js --name dev-momee"
+        "start:pm2": "pm2 start dist/index.js --name prod-momee"
     },
     "keywords": [],
     "author": "",
