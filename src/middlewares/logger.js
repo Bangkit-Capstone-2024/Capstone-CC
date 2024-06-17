@@ -20,8 +20,8 @@ const logger = winston.createLogger({
   ),
   transports: [
     new winston.transports.Console(),
-    new winston.transports.File({ filename: path.join('/var/log/dev-momee', 'error.log'), level: 'error' }),
-    new winston.transports.File({ filename: path.join('/var/log/dev-momee', 'combined.log') }),
+    new winston.transports.File({ filename: path.join('/var/log/prod-momee', 'error.log'), level: 'error' }),
+    new winston.transports.File({ filename: path.join('/var/log/prod-momee', 'combined.log') }),
   ],
 });
 
