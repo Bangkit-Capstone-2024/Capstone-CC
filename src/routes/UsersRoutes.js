@@ -47,7 +47,7 @@ const upload = multer({
 
 // CREATE USER ROUTES
 
-users_controllers.post("/users/create", UsersCreate);
+users_controllers.post("/users/register", UsersCreate);
 users_controllers.post("/users/login", LimitLogin, UsersLogin);
 users_controllers.post("/users/login-google", LimitLogin, UserGoogleAuth);
 //users_controllers.post("/users/logout", authCheck, UsersLogout);

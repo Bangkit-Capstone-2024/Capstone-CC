@@ -381,3 +381,39 @@ export const searchProductsByImage = async (req, res) => {
     });
   }
 };
+
+export const getProductsByTenantId = async (req, res) => {
+  try {
+    const { tenant_id } = req.params;
+
+    const tenant = await TenantModels.findUnique({
+      where: {
+        id: parseInt(tenant_id),
+      },
+      include: {
+        products: true,
+      },
+    });
+
+    if (!tenant) {
+      logger.warn(`Tenant not found: ID ${tenant_id}`);
+      return res.status(404).json({
+        success: "false",
+        message: "Tenant not found",
+      });
+    }
+
+    logger.info(`Retrieved products for tenant: ID ${tenant_id}`);
+    res.status(200).json({
+      success: "true",
+      message: "Products retrieved successfully",
+      data: tenant.products,
+    });
+  } catch (error) {
+    logger.error(`Error retrieving products for tenant: ${error.message}`);
+    res.status(500).json({
+      success: "false",
+      error: error.message,
+    });
+  }
+};
