@@ -51,18 +51,21 @@ const generateUniqueSlug = (name) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name_products, description, price, stock, is_available, category_id } = req.body;
+    const { name_products, description, price, stock, is_available, category_id, tenant_id } = req.body;
 
     const user_id = req.user.id;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
     const tenant = await TenantModels.findFirst({
       where: {
+        id: parseInt(tenant_id),
         user_id: parseInt(user_id),
       },
     });
 
     if (!tenant) {
+      logger.warn(`Tenant not found for user: ${user_id} and tenant: ${tenant_id}`);
+
       return res.status(404).json({
         success: "false",
         message: "Tenant not found!",
@@ -98,6 +101,7 @@ export const createProduct = async (req, res) => {
       },
     });
 
+    logger.info(`Product created successfully:  ${product.name_products}`);
     res.status(201).json({
       success: "true",
       message: "Product created successfully",
@@ -118,18 +122,26 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name_products, description, price, stock, is_available, category_id } = req.body;
+    const { name_products, 
+      description, 
+      price, stock, 
+      is_available, 
+      category_id,
+      tenant_id } = req.body;
 
     const user_id = req.user.id;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
     const tenant = await TenantModels.findFirst({
       where: {
+        id: parseInt(tenant_id),
         user_id: parseInt(user_id),
       },
     });
 
     if (!tenant) {
+      logger.warn(`Tenant not found for user: ${user_id} and tenant: ${tenant_id}`);
+
       return res.status(404).json({
         success: "false",
         message: "Tenant not found!",
@@ -162,6 +174,8 @@ export const updateProduct = async (req, res) => {
         address_tenants: tenant.address_tenants, // Include tenant's address
       },
     });
+
+    logger.info(`Product updated successfully:  ${product.name_products}`);
 
     res.status(200).json({
       success: "true",
@@ -215,6 +229,8 @@ export const getProductById = async (req, res) => {
     });
 
     if (!product) {
+      logger.warn(`Product not found: ${id}`);
+
       return res.status(404).json({
         success: "false",
         message: "Product not found",

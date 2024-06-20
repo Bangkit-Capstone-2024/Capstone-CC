@@ -78,53 +78,6 @@ export const UsersCreate = async (req, res) => {
             },
         });
 
-        // if (checkUniqueEmail) {
-        //     if (checkUniqueEmail.isVerified) {
-        //         return res.status(401).json({
-        //             success: "false",
-        //             message: "Email is already verified",
-        //         });
-        //     } else if (checkUniqueEmail.isDeleted) {
-        //         // Reactivate the soft-deleted account
-        //         const updatedUser = await prisma.user.update({
-        //             where: {
-        //                 email: email,
-        //             },
-        //             data: {
-        //                 isDeleted: false,
-        //                 isVerified: false, // Ensure the user needs to verify their email again
-        //                 password: bcryptjs.hashSync(password, 10), // Update password
-        //                 username: username, // Update username if needed
-        //             },
-        //         });
-
-        //         generateVerificationLink(updatedUser);
-
-        //         // Set authentication cookie
-        //         res.cookie("auth_token", token, {
-        //             httpOnly: true,
-        //             secure: true,
-        //             maxAge: 24 * 60 * 60 * 1000,
-        //         });
-
-        //         return res.status(200).json({
-        //             success: "true",
-        //             message:
-        //                 "Account reactivated successfully. Please check your email to verify your account.",
-        //             data: {
-        //                 id: updatedUser.id,
-        //                 email: updatedUser.email,
-        //                 username: updatedUser.username,
-        //             },
-        //         });
-        //     } else {
-        //         return res.status(401).json({
-        //             success: "false",
-        //             message: "Email already exists",
-        //         });
-        //     }
-        // }
-
         if (checkUniqueEmail) {
           if (checkUniqueEmail.isVerified) {
             return res.status(401).json({
