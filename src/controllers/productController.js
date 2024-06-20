@@ -49,6 +49,17 @@ const generateUniqueSlug = (name) => {
   return `${slugify(name, { lower: true, strict: true })}-${randomString}`;
 };
 
+// Utility function to format product pictures
+const formatProductPictures = (products) => {
+  return products.map(product => {
+    const pictures = product.pictures.split(",");
+    return {
+      ...product,
+      pictures: pictures.length > 0 ? pictures[0] : null,
+    };
+  });
+};
+
 export const createProduct = async (req, res) => {
   try {
     const { name_products, description, price, stock, is_available, category_id, tenant_id } = req.body;
@@ -209,13 +220,7 @@ export const getAllProducts = async (req, res) => {
       },
     });
 
-    const formattedProducts = products.map(product => {
-      const pictures = product.pictures.split(",");
-      return {
-        ...product,
-        pictures: pictures.length > 0 ? pictures[0] : null,
-      };
-    });
+    const formattedProducts = formatProductPictures(products);
 
     logger.info("Retrieved all products");
 
@@ -340,10 +345,12 @@ export const searchProducts = async (req, res) => {
       });
     }
 
+    const formattedProducts = formatProductPictures(products);
+
     res.status(200).json({
       success: "true",
       message: "Products retrieved successfully",
-      data: products,
+      data: formattedProducts,
     });
   } catch (error) {
     logger.error(`Error searching for products ${error.message}`);
@@ -439,13 +446,7 @@ export const getProductsByTenantId = async (req, res) => {
       });
     }
 
-    const formattedProducts = tenant.products.map(product => {
-      const pictures = product.pictures.split(",");
-      return {
-        ...product,
-        pictures: pictures.length > 0 ? pictures[0] : null,
-      };
-    });
+    const formattedProducts = formatProductPictures(tenant.products);
 
     logger.info(`Retrieved products for tenant: ID ${tenant_id}`);
     res.status(200).json({
