@@ -76,21 +76,26 @@ export const createProduct = async (req, res) => {
     // const slug = slugify(name_products, { lower: true, strict: true });
     const slug = generateUniqueSlug(name_products);
 
-    let pictureUrls = [];
+    let pictureUrls = "";
     // if (req.file) {
     //   pictureUrl = await uploadImageToGCS(req.file, tenant.name_tenants);
     // }
     if (req.files && req.files.length > 0) {
       const folderName = `tenants/${tenant.name_tenants}/products_images;`
       const uploadPromises = req.files.map((file) => uploadImageToGCS(file, folderName));
-      pictureUrls = await Promise.all(uploadPromises);
+      const uploadedUrls = await Promise.all(uploadPromises);
+
+      // pictureUrls = await Promise.all(uploadPromises);
+      pictureUrls = uploadedUrls.join(","); // Join URLs with a comma
+
     }
 
     const product = await ProductModels.create({
       data: {
         name_products,
         slug,
-        pictures: JSON.stringify(pictureUrls), // Join multiple URLs with comma
+        pictures: pictureUrls,
+        // pictures: JSON.stringify(pictureUrls), // Join multiple URLs with comma
         description,
         price: parseFloat(price),
         stock: parseInt(stock),
@@ -150,12 +155,14 @@ export const updateProduct = async (req, res) => {
 
     // Upload picture to Google Cloud Storage
 
-    let pictureUrls = [];
+    let pictureUrls = "";
     if (req.files && req.files.length > 0) {
       const folderName = `tenants/${tenant.name_tenants}/products_images;`
       const uploadPromises = req.files.map((file) => uploadImageToGCS(file, folderName));
-      const newPictureUrls = await Promise.all(uploadPromises);
-      pictureUrls = [...pictureUrls, ...newPictureUrls];
+      // const newPictureUrls = await Promise.all(uploadPromises);
+      // pictureUrls = [...pictureUrls, ...newPictureUrls];
+      const uploadedUrls = await Promise.all(uploadPromises);
+      pictureUrls = uploadedUrls.join(","); // Join URLs with a comma
     }
 
     const product = await ProductModels.update({
@@ -165,7 +172,8 @@ export const updateProduct = async (req, res) => {
       data: {
         name_products,
         slug: generateUniqueSlug(name_products),
-        pictures: JSON.stringify(pictureUrls),
+        pictures: pictureUrls,
+        // pictures: JSON.stringify(pictureUrls),
         description,
         price: parseFloat(price),
         stock: parseInt(stock),
