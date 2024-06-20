@@ -209,9 +209,21 @@ export const getAllProducts = async (req, res) => {
       },
     });
 
+    const formattedProducts = products.map(product => {
+      const pictures = product.pictures.split(",");
+      return {
+        ...product,
+        pictures: pictures.length > 0 ? pictures[0] : null,
+      };
+    });
+
+    logger.info("Retrieved all products");
+
     res.status(200).json({
       success: "true",
-      data: products,
+      message: "Products retrieved successfully",
+      data: formattedProducts,
+      // data: products,
     });
   } catch (error) {
     logger.error( `Error retrieving products: ${error.message}`);
@@ -427,11 +439,19 @@ export const getProductsByTenantId = async (req, res) => {
       });
     }
 
+    const formattedProducts = tenant.products.map(product => {
+      const pictures = product.pictures.split(",");
+      return {
+        ...product,
+        pictures: pictures.length > 0 ? pictures[0] : null,
+      };
+    });
+
     logger.info(`Retrieved products for tenant: ID ${tenant_id}`);
     res.status(200).json({
       success: "true",
       message: "Products retrieved successfully",
-      data: tenant.products,
+      data: formattedProducts,
     });
   } catch (error) {
     logger.error(`Error retrieving products for tenant: ${error.message}`);
