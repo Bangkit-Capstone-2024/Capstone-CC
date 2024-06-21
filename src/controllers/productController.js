@@ -49,20 +49,34 @@ const generateUniqueSlug = (name) => {
   return `${slugify(name, { lower: true, strict: true })}-${randomString}`;
 };
 
+// Utility function to format product pictures
+const formatProductPictures = (products) => {
+  return products.map(product => {
+    const pictures = product.pictures.split(",");
+    return {
+      ...product,
+      pictures: pictures.length > 0 ? pictures[0] : null,
+    };
+  });
+};
+
 export const createProduct = async (req, res) => {
   try {
-    const { name_products, description, price, stock, is_available, category_id } = req.body;
+    const { name_products, description, price, stock, is_available, category_id, tenant_id } = req.body;
 
     const user_id = req.user.id;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
     const tenant = await TenantModels.findFirst({
       where: {
+        id: parseInt(tenant_id),
         user_id: parseInt(user_id),
       },
     });
 
     if (!tenant) {
+      logger.warn(`Tenant not found for user: ${user_id} and tenant: ${tenant_id}`);
+
       return res.status(404).json({
         success: "false",
         message: "Tenant not found!",
@@ -73,21 +87,26 @@ export const createProduct = async (req, res) => {
     // const slug = slugify(name_products, { lower: true, strict: true });
     const slug = generateUniqueSlug(name_products);
 
-    let pictureUrls = [];
+    let pictureUrls = "";
     // if (req.file) {
     //   pictureUrl = await uploadImageToGCS(req.file, tenant.name_tenants);
     // }
     if (req.files && req.files.length > 0) {
       const folderName = `tenants/${tenant.name_tenants}/products_images;`
       const uploadPromises = req.files.map((file) => uploadImageToGCS(file, folderName));
-      pictureUrls = await Promise.all(uploadPromises);
+      const uploadedUrls = await Promise.all(uploadPromises);
+
+      // pictureUrls = await Promise.all(uploadPromises);
+      pictureUrls = uploadedUrls.join(","); // Join URLs with a comma
+
     }
 
     const product = await ProductModels.create({
       data: {
         name_products,
         slug,
-        pictures: JSON.stringify(pictureUrls), // Join multiple URLs with comma
+        pictures: pictureUrls,
+        // pictures: JSON.stringify(pictureUrls), // Join multiple URLs with comma
         description,
         price: parseFloat(price),
         stock: parseInt(stock),
@@ -98,6 +117,7 @@ export const createProduct = async (req, res) => {
       },
     });
 
+    logger.info(`Product created successfully:  ${product.name_products}`);
     res.status(201).json({
       success: "true",
       message: "Product created successfully",
@@ -118,18 +138,26 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name_products, description, price, stock, is_available, category_id } = req.body;
+    const { name_products, 
+      description, 
+      price, stock, 
+      is_available, 
+      category_id,
+      tenant_id } = req.body;
 
     const user_id = req.user.id;
 
     // Periksa apakah tenant dengan ID yang diberikan ada di database
     const tenant = await TenantModels.findFirst({
       where: {
+        id: parseInt(tenant_id),
         user_id: parseInt(user_id),
       },
     });
 
     if (!tenant) {
+      logger.warn(`Tenant not found for user: ${user_id} and tenant: ${tenant_id}`);
+
       return res.status(404).json({
         success: "false",
         message: "Tenant not found!",
@@ -138,12 +166,14 @@ export const updateProduct = async (req, res) => {
 
     // Upload picture to Google Cloud Storage
 
-    let pictureUrls = [];
+    let pictureUrls = "";
     if (req.files && req.files.length > 0) {
       const folderName = `tenants/${tenant.name_tenants}/products_images;`
       const uploadPromises = req.files.map((file) => uploadImageToGCS(file, folderName));
-      const newPictureUrls = await Promise.all(uploadPromises);
-      pictureUrls = [...pictureUrls, ...newPictureUrls];
+      // const newPictureUrls = await Promise.all(uploadPromises);
+      // pictureUrls = [...pictureUrls, ...newPictureUrls];
+      const uploadedUrls = await Promise.all(uploadPromises);
+      pictureUrls = uploadedUrls.join(","); // Join URLs with a comma
     }
 
     const product = await ProductModels.update({
@@ -153,7 +183,8 @@ export const updateProduct = async (req, res) => {
       data: {
         name_products,
         slug: generateUniqueSlug(name_products),
-        pictures: JSON.stringify(pictureUrls),
+        pictures: pictureUrls,
+        // pictures: JSON.stringify(pictureUrls),
         description,
         price: parseFloat(price),
         stock: parseInt(stock),
@@ -162,6 +193,8 @@ export const updateProduct = async (req, res) => {
         address_tenants: tenant.address_tenants, // Include tenant's address
       },
     });
+
+    logger.info(`Product updated successfully:  ${product.name_products}`);
 
     res.status(200).json({
       success: "true",
@@ -187,9 +220,15 @@ export const getAllProducts = async (req, res) => {
       },
     });
 
+    const formattedProducts = formatProductPictures(products);
+
+    logger.info("Retrieved all products");
+
     res.status(200).json({
       success: "true",
-      data: products,
+      message: "Products retrieved successfully",
+      data: formattedProducts,
+      // data: products,
     });
   } catch (error) {
     logger.error( `Error retrieving products: ${error.message}`);
@@ -215,6 +254,8 @@ export const getProductById = async (req, res) => {
     });
 
     if (!product) {
+      logger.warn(`Product not found: ${id}`);
+
       return res.status(404).json({
         success: "false",
         message: "Product not found",
@@ -304,10 +345,12 @@ export const searchProducts = async (req, res) => {
       });
     }
 
+    const formattedProducts = formatProductPictures(products);
+
     res.status(200).json({
       success: "true",
       message: "Products retrieved successfully",
-      data: products,
+      data: formattedProducts,
     });
   } catch (error) {
     logger.error(`Error searching for products ${error.message}`);
@@ -375,6 +418,44 @@ export const searchProductsByImage = async (req, res) => {
     });
   } catch (error) {
     console.error(`Error searching for product by image: ${error.message}`);
+    res.status(500).json({
+      success: "false",
+      error: error.message,
+    });
+  }
+};
+
+export const getProductsByTenantId = async (req, res) => {
+  try {
+    const { tenant_id } = req.params;
+
+    const tenant = await TenantModels.findUnique({
+      where: {
+        id: parseInt(tenant_id),
+      },
+      include: {
+        products: true,
+      },
+    });
+
+    if (!tenant) {
+      logger.warn(`Tenant not found: ID ${tenant_id}`);
+      return res.status(404).json({
+        success: "false",
+        message: "Tenant not found",
+      });
+    }
+
+    const formattedProducts = formatProductPictures(tenant.products);
+
+    logger.info(`Retrieved products for tenant: ID ${tenant_id}`);
+    res.status(200).json({
+      success: "true",
+      message: "Products retrieved successfully",
+      data: formattedProducts,
+    });
+  } catch (error) {
+    logger.error(`Error retrieving products for tenant: ${error.message}`);
     res.status(500).json({
       success: "false",
       error: error.message,

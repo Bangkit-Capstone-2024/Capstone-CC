@@ -348,11 +348,37 @@ Response Body Success:
   "message": "Product not found or already deleted!"
 }
 ```
+</details>
 
-### Notes:
+<details><summary>Show Product by Tenant Id</summary>
 
-1. Nama Product harus unik atau bisa sama?
-2. Jika nama product sama, bagaimana dengan slug-nya?
+### Endpoint : ```GET /api/v1/products/tenant/:tenant_id```
+
+Response Body Success :
+
+```json
+{
+    "success": "true",
+    "message": "Products retrieved successfully",
+    "data": [
+        {
+            "id": 1,
+            "name_products": "Ride On 2 test",
+            "slug": "ride-on-2-test-846c3f67",
+            "pictures": "[\"https://storage.googleapis.com/dev-momee-products-images/Roby Stores Update 2/0c969e2d9b5cd968c62705264c94ba0c-ride-on.jpg\"]",
+            "description": "Example Description Product",
+            "price": 8500,
+            "stock": 8,
+            "is_available": true,
+            "created_at": "2024-06-07T18:56:16.669Z",
+            "updated_at": "2024-06-09T15:26:05.455Z",
+            "category_id": 1,
+            "tenant_id": 2,
+            "address_tenants": "Kota Semarang, Jawa Tengah, Indonesia"
+        }
+   ]
+}
+```
 </details>
 
 

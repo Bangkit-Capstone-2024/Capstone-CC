@@ -1,7 +1,14 @@
 import express from "express";
 import multer from "multer";
 
-import { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, searchProducts, searchProductsByImage } from "../controllers/productController";
+import { createProduct, 
+  getAllProducts, 
+  getProductById, 
+  getProductsByTenantId,
+  updateProduct, 
+  deleteProduct, 
+  searchProducts, 
+  searchProductsByImage } from "../controllers/productController";
 const authCheck = require("../middlewares/AuthCheck");
 
 // const upload = multer({ storage: multer.memoryStorage() });
@@ -31,6 +38,7 @@ product_controllers.patch("/products/:id", upload.array("pictures", 8), authChec
 product_controllers.get("/products", getAllProducts);
 product_controllers.get("/products/search", searchProducts);
 product_controllers.post("/products/search-by-image", upload.single('image'), searchProductsByImage); // Endpoint for product search by image
+product_controllers.get("/products/tenant/:tenant_id", authCheck, getProductsByTenantId);
 product_controllers.get("/products/:id", authCheck, getProductById);
 // product_controllers.patch("/products/:id", updateProduct);
 product_controllers.delete("/products/:id", authCheck, deleteProduct);
